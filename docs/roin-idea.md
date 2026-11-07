@@ -1,0 +1,1 @@
+Älykäs resepti-kirja omaan käyttöön. Ohjelmaan voi tallentaa omia reseptejä. Ohjelma ehdottaa reseptejä makuprofiilieja hakemalla esim(raikas, lihainen, tuhti, yms).
