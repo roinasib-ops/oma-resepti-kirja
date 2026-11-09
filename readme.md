@@ -2,5 +2,5 @@
 
 
 
-Lue \[projektin määrittely ja hyväksymiskriteerit](docs/01-projektikuvaus.md).
+Lue \[projektin määrittely](docs/01-projektikuvaus.md).
 
