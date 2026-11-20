@@ -1,0 +1,1187 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Makukirja</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column, phone first. Sticky title bar, tinted filter panel (flavor chips, ingredient tokens), recipe cards. Detail, editor and the ingredients screen replace the list as full views, routed by hash. Flavor hues are the only saturated colors; the accent is a quiet green. */
+:root {
+  --bg: #F2F4F1;
+  --surface: #FFFFFF;
+  --surface-2: #E7ECE6;
+  --fg: #17201B;
+  --muted: #5A685F;
+  --line: #D3DBD3;
+  --accent: #1E6B57;
+  --accent-fg: #FFFFFF;
+  --danger: #B3372B;
+  --f-sweet: #D6457F;
+  --f-sour: #A3A60E;
+  --f-salty: #3F7FB5;
+  --f-bitter: #7A5BB0;
+  --f-umami: #B25A2C;
+  --f-spicy: #D93A25;
+  --f-smoky: #6F6F6A;
+  --f-herbal: #3F9142;
+  --f-rich: #D49A1C;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111713;
+    --surface: #1A221D;
+    --surface-2: #222C26;
+    --fg: #E8EFEA;
+    --muted: #9AA9A0;
+    --line: #2F3B34;
+    --accent: #5CC2A3;
+    --accent-fg: #0B1F18;
+    --danger: #F08A7E;
+    --f-sweet: #F07AA8;
+    --f-sour: #CFD34A;
+    --f-salty: #6FA8DC;
+    --f-bitter: #A58BD8;
+    --f-umami: #D98A5C;
+    --f-spicy: #F26B55;
+    --f-smoky: #A3A39C;
+    --f-herbal: #6CC46F;
+    --f-rich: #EDB84A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111713;
+  --surface: #1A221D;
+  --surface-2: #222C26;
+  --fg: #E8EFEA;
+  --muted: #9AA9A0;
+  --line: #2F3B34;
+  --accent: #5CC2A3;
+  --accent-fg: #0B1F18;
+  --danger: #F08A7E;
+  --f-sweet: #F07AA8;
+  --f-sour: #CFD34A;
+  --f-salty: #6FA8DC;
+  --f-bitter: #A58BD8;
+  --f-umami: #D98A5C;
+  --f-spicy: #F26B55;
+  --f-smoky: #A3A39C;
+  --f-herbal: #6CC46F;
+  --f-rich: #EDB84A;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.5 var(--body);
+  padding-block: 0 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  background: var(--bg);
+}
+.wrap { max-width: 640px; margin: 0 auto; }
+h1, h2, h3, p { margin: 0; }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.cap { display: inline-block; }
+.cap::first-letter { text-transform: uppercase; }
+
+/* Title bar */
+.top {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 10;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-block: 14px 10px;
+}
+.top h1, .top h2 {
+  font: 700 26px/1.1 var(--display);
+  letter-spacing: -0.01em;
+  min-width: 0;
+  text-wrap: balance;
+}
+.top h2 { font-size: 18px; text-align: center; flex: 1; }
+.top h2.left { text-align: left; }
+.acts { display: flex; gap: 8px; flex: none; }
+
+/* Buttons */
+.btn {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: transparent; }
+.btn.quiet { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.danger { color: var(--danger); }
+.btn.sm { min-height: 36px; padding: 0 10px; font-size: 13px; }
+.btn[disabled] { opacity: 0.55; cursor: default; }
+
+/* Fields */
+.field, .group { display: grid; gap: 6px; min-width: 0; border: 0; padding: 0; margin: 0; }
+.lbl { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 0; }
+.hint { font-size: 13px; color: var(--muted); }
+input, textarea, select {
+  width: 100%;
+  min-height: 44px;
+  font: inherit;
+  font-size: 16px;
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  appearance: none;
+}
+select {
+  padding-right: 8px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+textarea { resize: vertical; line-height: 1.45; }
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
+.chk { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+.chk input { width: 22px; min-height: 22px; height: 22px; padding: 0; appearance: auto; flex: none; margin: 1px 0 0; accent-color: var(--accent); }
+
+/* Filter panel */
+.search { margin-block: 4px 12px; }
+.find { background: var(--surface-2); border-radius: 14px; padding: 4px 14px 14px; margin-bottom: 18px; }
+.find > summary {
+  list-style: none;
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 14px;
+}
+.find > summary::-webkit-details-marker { display: none; }
+.find > summary::after { content: "Piilota"; font-weight: 500; font-size: 13px; color: var(--muted); }
+.find:not([open]) > summary::after { content: "Näytä"; }
+.find:not([open]) { padding-bottom: 4px; }
+.badge {
+  display: inline-block; min-width: 20px; padding: 1px 6px; margin-left: 8px;
+  border-radius: 999px; background: var(--accent); color: var(--accent-fg);
+  font-size: 12px; text-align: center; font-variant-numeric: tabular-nums;
+}
+.find .group + .group { margin-top: 16px; }
+
+/* Flavor chips */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 14px 0 12px;
+  border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface); cursor: pointer;
+  font-weight: 500; font-size: 14px;
+}
+.chip .dot, .ftag .dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  border: 2px solid var(--c); background: transparent; flex: none;
+}
+.chip[aria-pressed="true"], .chip.lv1, .chip.lv2, .chip.lv3 {
+  border-color: var(--c);
+  background: var(--surface-2);
+  background: color-mix(in srgb, var(--c) 16%, var(--surface));
+  font-weight: 600;
+}
+.chip[aria-pressed="true"] .dot, .chip.lv1 .dot, .chip.lv2 .dot, .chip.lv3 .dot { background: var(--c); }
+.f-sweet { --c: var(--f-sweet); } .f-sour { --c: var(--f-sour); } .f-salty { --c: var(--f-salty); }
+.f-bitter { --c: var(--f-bitter); } .f-umami { --c: var(--f-umami); } .f-spicy { --c: var(--f-spicy); }
+.f-smoky { --c: var(--f-smoky); } .f-herbal { --c: var(--f-herbal); } .f-rich { --c: var(--f-rich); }
+.pips { display: inline-grid; grid-auto-flow: column; gap: 2px; }
+.pips i { width: 8px; height: 4px; border-radius: 2px; background: var(--line); }
+.pips i.on { background: var(--c); }
+
+/* Ingredient picker, tokens, mode switch */
+.addrow { display: flex; gap: 8px; align-items: flex-start; }
+.pick { flex: 1; min-width: 0; display: grid; }
+.sugg { display: grid; gap: 4px; margin-top: 6px; }
+.sugg:empty { display: none; }
+.sugg button {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  width: 100%; min-height: 44px; padding: 0 12px; text-align: left;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+  font-size: 15px; cursor: pointer;
+}
+.sugg button .u { color: var(--muted); font-size: 13px; }
+.sugg button.new { border-style: dashed; border-color: var(--accent); color: var(--accent); font-weight: 600; justify-content: flex-start; }
+.tokens { display: flex; flex-wrap: wrap; gap: 8px; }
+.tokens:empty { display: none; }
+.tok {
+  display: inline-flex; align-items: center; gap: 4px;
+  min-height: 36px; padding: 0 4px 0 12px;
+  border-radius: 8px; border: 1px solid var(--line); background: var(--surface);
+  font-size: 14px; font-weight: 500;
+}
+.tok button {
+  width: 32px; height: 32px; border: 0; background: transparent; cursor: pointer;
+  color: var(--muted); font-size: 18px; line-height: 1; border-radius: 6px;
+}
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); justify-self: start; }
+.seg button { min-height: 40px; padding: 0 14px; border: 0; background: transparent; font-size: 14px; font-weight: 500; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+
+/* Results */
+.rhead { display: flex; align-items: center; justify-content: space-between; min-height: 36px; margin-bottom: 8px; color: var(--muted); font-size: 13px; font-weight: 500; }
+.list { display: grid; gap: 12px; }
+.card {
+  display: grid; gap: 8px; min-width: 0;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px; text-decoration: none; color: inherit;
+}
+.card:active { background: var(--surface-2); }
+.card h3 { font: 600 19px/1.2 var(--display); text-wrap: balance; overflow-wrap: anywhere; }
+.card .head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.tag { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; flex: none; }
+.meta { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ftags { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+.ftag { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; }
+.ing-line { font-size: 13px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.ing-line b { font-weight: 600; }
+.ing-line .miss { color: var(--muted); }
+.empty { padding: 28px 8px; text-align: center; color: var(--muted); display: grid; gap: 12px; justify-items: center; }
+.empty strong { color: var(--fg); font: 600 18px/1.3 var(--display); }
+.note { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); }
+
+/* Detail */
+.detail { display: grid; gap: 22px; }
+.detail h2.title { font: 700 30px/1.1 var(--display); letter-spacing: -0.01em; text-wrap: balance; overflow-wrap: anywhere; }
+.sec { display: grid; gap: 10px; }
+.sechead { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.stepper { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+.stepper .ctl { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.stepper .ctl button { width: 44px; min-height: 44px; border: 0; background: transparent; font-size: 20px; cursor: pointer; }
+.stepper .ctl input { width: 52px; min-height: 44px; border: 0; border-radius: 0; text-align: center; padding: 0; font-variant-numeric: tabular-nums; -moz-appearance: textfield; }
+.stepper .ctl input::-webkit-outer-spin-button, .stepper .ctl input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.profile { display: grid; gap: 8px; }
+.prow { display: grid; grid-template-columns: 96px 1fr 84px; align-items: center; gap: 10px; font-size: 14px; }
+.prow .nm { display: flex; align-items: center; gap: 7px; font-weight: 500; }
+.prow .lvl { color: var(--muted); font-size: 13px; text-align: right; }
+.meter { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.meter i { height: 10px; border-radius: 3px; background: var(--line); }
+.meter i.on { background: var(--c); }
+.ingl { list-style: none; margin: 0; padding: 0; }
+.ingl li { display: grid; grid-template-columns: 82px 1fr auto; align-items: baseline; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.ingl .amt { font-weight: 600; font-variant-numeric: tabular-nums; }
+.ingl .amt.soft { font-weight: 400; color: var(--muted); font-size: 13px; }
+.ingl li.plain { grid-template-columns: 1fr; }
+.have { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: s; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 10px; }
+.steps li::before { content: counter(s); font: 700 20px/1.2 var(--display); color: var(--accent); font-variant-numeric: tabular-nums; }
+.notes-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-top: 8px; }
+
+/* Editor */
+.form { display: grid; gap: 18px; padding-bottom: 8px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.err { color: var(--danger); font-size: 13px; font-weight: 500; }
+.err:empty { display: none; }
+.rows { display: grid; gap: 10px; }
+.irow { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); min-width: 0; }
+.ihead { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; }
+.ihead .name { font-weight: 600; font-size: 16px; overflow-wrap: anywhere; }
+.line2 { display: grid; grid-template-columns: 1fr 92px 44px; gap: 8px; align-items: center; }
+.line2 .btn { padding: 0; font-size: 20px; }
+.confirm { display: grid; gap: 10px; padding: 12px; border-radius: 10px; background: var(--surface-2); }
+.confirm .actions { padding-top: 0; }
+
+/* Ingredients screen */
+.iadd { display: grid; gap: 8px; margin-top: 4px; }
+.iadd .urow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.iadd .urow .btn { margin-left: auto; }
+.lrow { border-bottom: 1px solid var(--line); }
+.lmain { display: flex; width: 100%; justify-content: space-between; align-items: baseline; gap: 12px; min-height: 48px; padding: 8px 0; border: 0; background: transparent; text-align: left; cursor: pointer; }
+.lname { font-size: 16px; font-weight: 500; overflow-wrap: anywhere; }
+.lmeta { font-size: 13px; color: var(--muted); text-align: right; }
+.lpanel { display: grid; gap: 14px; padding: 12px; margin: 6px 0 12px; border-radius: 12px; background: var(--surface-2); }
+.screen { display: grid; gap: 14px; }
+
+#toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  max-width: calc(100% - 32px);
+  background: var(--fg); color: var(--bg);
+  padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: 500;
+  z-index: 30; opacity: 0; pointer-events: none; transition: opacity 0.15s;
+}
+#toast.show { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
+</style>
+
+<div class="wrap">
+  <section id="v-list">
+    <header class="top">
+      <h1>Makukirja</h1>
+      <div class="acts">
+        <button class="btn" data-act="goings" type="button">Ainekset</button>
+        <button class="btn primary" data-act="new" type="button">Uusi resepti</button>
+      </div>
+    </header>
+
+    <label class="field search">
+      <span class="sr">Hae reseptejä</span>
+      <input id="q" type="search" placeholder="Hae nimellä tai aineella" autocomplete="off">
+    </label>
+
+    <details class="find" id="find" open>
+      <summary><span>Maut ja ainekset<span class="badge" id="fbadge" hidden></span></span></summary>
+      <div class="group">
+        <div class="lbl">Makuprofiili</div>
+        <div class="chips" id="flavor-chips"></div>
+        <p class="hint" id="flavor-hint"></p>
+      </div>
+      <div class="group">
+        <div class="lbl">Ainekset</div>
+        <form class="addrow" id="ing-form" autocomplete="off">
+          <div class="pick">
+            <input id="ing" class="pick-in" data-ctx="search" enterkeyhint="done" autocapitalize="none" placeholder="Hae aines, esim. tomaatti" aria-label="Lisää aines hakuun">
+            <div class="sugg" id="ing-sugg"></div>
+          </div>
+          <button class="btn" type="submit">Lisää</button>
+        </form>
+        <div class="tokens" id="ing-tokens"></div>
+        <div class="seg" id="ing-mode" role="group" aria-label="Miten aineksia käytetään">
+          <button type="button" data-act="mode" data-val="include">Pitää sisältää</button>
+          <button type="button" data-act="mode" data-val="pantry">Minulla on nämä</button>
+        </div>
+        <p class="hint" id="mode-hint"></p>
+      </div>
+    </details>
+
+    <div id="results"></div>
+  </section>
+
+  <section id="v-detail" hidden></section>
+  <section id="v-edit" hidden></section>
+  <section id="v-ings" hidden></section>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  document.documentElement.lang = 'fi';
+
+  var FLAVORS = [
+    { id: 'sweet', name: 'Makea' }, { id: 'sour', name: 'Hapan' }, { id: 'salty', name: 'Suolainen' },
+    { id: 'bitter', name: 'Karvas' }, { id: 'umami', name: 'Umami' }, { id: 'spicy', name: 'Tulinen' },
+    { id: 'smoky', name: 'Savuinen' }, { id: 'herbal', name: 'Yrttinen' }, { id: 'rich', name: 'Täyteläinen' }
+  ];
+  var FL = {};
+  FLAVORS.forEach(function (f) { FL[f.id] = f; });
+  var LEVELS = ['', 'Häivähdys', 'Keskivahva', 'Voimakas'];
+  var UNITS = ['g', 'dl', 'kpl'];
+  var LS_R = 'makukirja.recipes.v2', LS_I = 'makukirja.ingredients.v2';
+
+  /* PURE:start */
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function norm(s) { return String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
+  function plain(s) { return String(s == null ? '' : s).trim().toLowerCase(); }
+  function lev(a, b) {
+    var m = a.length, n = b.length, i, j;
+    if (!m) return n;
+    if (!n) return m;
+    var prev = [], cur = [];
+    for (j = 0; j <= n; j++) prev[j] = j;
+    for (i = 1; i <= m; i++) {
+      cur[0] = i;
+      for (j = 1; j <= n; j++) {
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1));
+      }
+      var t = prev; prev = cur; cur = t;
+    }
+    return prev[n];
+  }
+  function fmtAmt(n, unit) {
+    var v = unit === 'g' ? (n >= 10 ? Math.round(n) : Math.round(n * 10) / 10) : Math.round(n * 100) / 100;
+    return String(v).replace('.', ',');
+  }
+  function parseAmt(s) {
+    var t = String(s == null ? '' : s).trim().replace(',', '.');
+    if (!t) return null;
+    if (!/^\d*\.?\d+$/.test(t)) return NaN;
+    var n = parseFloat(t);
+    return n > 0 ? n : null;
+  }
+  /* PURE:end */
+
+  var S = {
+    recipes: [], ings: [], map: {}, rr: false, ri: false, mode: 'local', cols: null, unsubs: [], slow: false,
+    q: '', flavors: [], sel: [], ingMode: 'include',
+    view: null, rid: null, scroll: 0, confirm: false, confirmEx: false, serv: null,
+    draft: null, editBuilt: false, busy: false, kc: 0,
+    ingq: '', editIng: null, editUnit: 'g', mergeFor: null, mergeTarget: null, delIng: null, addUnit: 'g', addWarn: null
+  };
+  var V = {
+    list: document.getElementById('v-list'),
+    detail: document.getElementById('v-detail'),
+    edit: document.getElementById('v-edit'),
+    ings: document.getElementById('v-ings')
+  };
+
+  function $(s, el) { return (el || document).querySelector(s); }
+  function $$(s, el) { return Array.prototype.slice.call((el || document).querySelectorAll(s)); }
+  function ready() { return S.rr && S.ri; }
+  function findR(id) { for (var i = 0; i < S.recipes.length; i++) if (S.recipes[i].id === id) return S.recipes[i]; return null; }
+  function rebuildMap() { S.map = {}; S.ings.forEach(function (g) { S.map[g.id] = g; }); }
+  function newId(p) { return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function nk() { S.kc += 1; return 'k' + S.kc; }
+  function rowsOf(r) { return (r.ingredients || []).filter(function (x) { return x && typeof x === 'object'; }); }
+  function legacyOf(r) { return (r.ingredients || []).filter(function (x) { return typeof x === 'string'; }); }
+  function byName(a, b) { return String(a.name).localeCompare(String(b.name), 'fi'); }
+  function plural(n, one, many) { return n === 1 ? '1 ' + one : n + ' ' + many; }
+
+  var toastTimer;
+  function toast(msg) {
+    var t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 3200);
+  }
+
+  /* ---------- ingredient lookup ---------- */
+  function exact(text) {
+    var t = plain(text);
+    if (!t) return null;
+    for (var i = 0; i < S.ings.length; i++) if (plain(S.ings[i].name) === t) return S.ings[i];
+    return null;
+  }
+  function suggest(text) {
+    var t = norm(text);
+    if (!t) return [];
+    var out = [];
+    S.ings.forEach(function (g) {
+      var n = norm(g.name), s = -1;
+      if (n === t) s = 0;
+      else if (n.indexOf(t) === 0) s = 1;
+      else if (n.indexOf(t) > -1) s = 2;
+      else if (t.length >= 3) {
+        var d = Math.min(lev(t, n), lev(t, n.slice(0, t.length)));
+        if (d <= (t.length <= 4 ? 1 : 2)) s = 3 + d;
+      }
+      if (s >= 0) out.push({ g: g, s: s });
+    });
+    out.sort(function (a, b) { return a.s - b.s || byName(a.g, b.g); });
+    return out.slice(0, 6).map(function (x) { return x.g; });
+  }
+  function suggHTML(ctx, text, allowNew, exclude) {
+    var t = String(text || '').trim();
+    if (!t) return '';
+    var list = suggest(t).filter(function (g) { return !(exclude && exclude.indexOf(g.id) > -1); });
+    var h = list.map(function (g) {
+      return '<button type="button" data-act="pick" data-ctx="' + ctx + '" data-val="' + esc(g.id) + '"><span class="cap">' + esc(g.name) + '</span><span class="u">' + g.unit + '</span></button>';
+    }).join('');
+    if (allowNew && !exact(t)) h += '<button type="button" class="new" data-act="pick-new" data-ctx="' + ctx + '" data-val="' + esc(t) + '">Lisää uusi aines ”' + esc(t) + '”</button>';
+    if (!allowNew && !list.length) h += '<p class="hint">Ainesta ei löydy listasta. Lisää se ensin Ainekset-näkymässä.</p>';
+    return h;
+  }
+  function usage(id) {
+    return S.recipes.filter(function (r) { return rowsOf(r).some(function (x) { return x.id === id; }); }).length;
+  }
+
+  /* ---------- storage ---------- */
+  function lsRead(k) { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch (e) { return []; } }
+  function lsWrite(k, list) { try { localStorage.setItem(k, JSON.stringify(list)); } catch (e) {} }
+  function arrFor(kind) { return kind === 'recipes' ? S.recipes : S.ings; }
+  function upsertLocal(kind, o) {
+    var a = arrFor(kind), i = -1;
+    a.forEach(function (x, n) { if (x.id === o.id) i = n; });
+    if (i < 0) a.push(o); else a[i] = o;
+    if (kind === 'ingredients') rebuildMap();
+  }
+  function dropLocal(kind, id) {
+    var a = arrFor(kind).filter(function (x) { return x.id !== id; });
+    if (kind === 'recipes') S.recipes = a; else { S.ings = a; rebuildMap(); }
+  }
+  function saveLs(kind) { lsWrite(kind === 'recipes' ? LS_R : LS_I, arrFor(kind)); }
+  function persistDoc(kind, o) {
+    if (S.mode === 'db') {
+      var data = {};
+      Object.keys(o).forEach(function (k) { if (k !== 'id' && o[k] !== undefined) data[k] = o[k]; });
+      return S.cols[kind].doc(o.id).set(data).then(function () { upsertLocal(kind, o); });
+    }
+    upsertLocal(kind, o);
+    saveLs(kind);
+    return Promise.resolve();
+  }
+  function removeDoc(kind, id) {
+    if (S.mode === 'db') return S.cols[kind].doc(id).delete().then(function () { dropLocal(kind, id); });
+    dropLocal(kind, id);
+    saveLs(kind);
+    return Promise.resolve();
+  }
+  function startLocal() {
+    S.mode = 'local';
+    S.recipes = lsRead(LS_R);
+    S.ings = lsRead(LS_I);
+    rebuildMap();
+    S.rr = true; S.ri = true;
+    onData();
+  }
+  function fallback() {
+    S.unsubs.forEach(function (u) { try { u(); } catch (e) {} });
+    S.unsubs = [];
+    startLocal();
+  }
+  function docObj(d) { var o = Object.assign({}, d.data()); o.id = d.id; return o; }
+  function init() {
+    var timer = setTimeout(function () { if (!ready()) { S.slow = true; onData(); } }, 10000);
+    var p = (window.claude && window.claude.use) ? window.claude.use('db') : Promise.resolve(null);
+    p.then(function (db) {
+      if (!db) { clearTimeout(timer); startLocal(); return; }
+      S.mode = 'db';
+      S.cols = { recipes: db.collection('recipes'), ingredients: db.collection('ingredients') };
+      var fail = function () { clearTimeout(timer); if (!ready()) fallback(); };
+      S.unsubs.push(S.cols.recipes.onSnapshot(function (snap) {
+        if (S.mode !== 'db') return;
+        S.recipes = snap.docs.map(docObj);
+        S.rr = true;
+        if (ready()) { clearTimeout(timer); S.slow = false; }
+        onData();
+      }, fail));
+      S.unsubs.push(S.cols.ingredients.onSnapshot(function (snap) {
+        if (S.mode !== 'db') return;
+        S.ings = snap.docs.map(docObj);
+        rebuildMap();
+        S.ri = true;
+        if (ready()) { clearTimeout(timer); S.slow = false; }
+        onData();
+      }, fail));
+    }).catch(function () { clearTimeout(timer); startLocal(); });
+  }
+
+  /* ---------- search ---------- */
+  function runSearch() {
+    var words = norm(S.q) ? norm(S.q).split(/\s+/) : [];
+    var out = [];
+    S.recipes.forEach(function (r) {
+      var f = r.flavors || {}, rows = rowsOf(r);
+      var ids = rows.map(function (x) { return x.id; });
+      if (words.length) {
+        var nm = rows.map(function (x) { return S.map[x.id] ? S.map[x.id].name : ''; }).join(' ');
+        var hay = norm(r.title + ' ' + nm + ' ' + (r.notes || ''));
+        if (!words.every(function (w) { return hay.indexOf(w) > -1; })) return;
+      }
+      for (var i = 0; i < S.flavors.length; i++) if (!(f[S.flavors[i]] > 0)) return;
+      var fscore = S.flavors.reduce(function (a, id) { return a + f[id]; }, 0);
+      var info = null;
+      if (S.sel.length) {
+        if (S.ingMode === 'include') {
+          if (!S.sel.every(function (id) { return ids.indexOf(id) > -1; })) return;
+          info = { kind: 'include' };
+        } else {
+          if (!S.sel.some(function (id) { return ids.indexOf(id) > -1; })) return;
+          var need = rows.filter(function (x) { return !(S.map[x.id] && S.map[x.id].staple); });
+          var miss = need.filter(function (x) { return S.sel.indexOf(x.id) < 0; });
+          info = { kind: 'pantry', total: need.length, missing: miss.map(function (x) { return x.id; }) };
+        }
+      }
+      out.push({ r: r, fscore: fscore, info: info });
+    });
+    out.sort(function (a, b) {
+      if (a.info && a.info.kind === 'pantry' && b.info) {
+        var d = a.info.missing.length - b.info.missing.length;
+        if (d) return d;
+      }
+      if (b.fscore !== a.fscore) return b.fscore - a.fscore;
+      return String(a.r.title).localeCompare(String(b.r.title), 'fi');
+    });
+    return out;
+  }
+
+  /* ---------- markup helpers ---------- */
+  function pips(level) {
+    return '<span class="pips" aria-hidden="true"><i' + (level >= 1 ? ' class="on"' : '') + '></i><i' + (level >= 2 ? ' class="on"' : '') + '></i><i' + (level >= 3 ? ' class="on"' : '') + '></i></span>';
+  }
+  function ftag(id, level) {
+    return '<span class="ftag f-' + id + '"><i class="dot"></i>' + FL[id].name + pips(level) + '<span class="sr">, ' + LEVELS[level] + '</span></span>';
+  }
+  function flavorIds(f) {
+    return FLAVORS.map(function (x) { return x.id; }).filter(function (id) { return f[id] > 0; }).sort(function (a, b) { return f[b] - f[a]; });
+  }
+  function metaText(r) {
+    var m = [];
+    if (r.time) m.push(r.time + ' min');
+    if (r.servings) m.push(plural(r.servings, 'annos', 'annosta'));
+    m.push(plural(rowsOf(r).length + legacyOf(r).length, 'aines', 'ainesta'));
+    return m.join(' · ');
+  }
+  function nameOf(id) { return S.map[id] ? S.map[id].name : 'tuntematon aines'; }
+  function loadingHTML() {
+    return '<div class="empty"><p>Ladataan reseptejäsi…</p>' + (S.slow ? '<p>Lataus kestää tavallista kauemmin. Tallennetut reseptit näkyvät, kun yhteys toimii.</p>' : '') + '</div>';
+  }
+  function setPressed(btn) {
+    Array.prototype.forEach.call(btn.parentNode.children, function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
+  }
+  function unitSeg(act, cur) {
+    return '<div class="seg" role="group" aria-label="Yksikkö">' + UNITS.map(function (u) {
+      return '<button type="button" data-act="' + act + '" data-val="' + u + '" aria-pressed="' + (cur === u) + '">' + u + '</button>';
+    }).join('') + '</div>';
+  }
+
+  /* ---------- list view ---------- */
+  function renderFilters() {
+    S.sel = S.sel.filter(function (id) { return S.map[id]; });
+    $('#flavor-chips').innerHTML = FLAVORS.map(function (f) {
+      var on = S.flavors.indexOf(f.id) > -1;
+      return '<button type="button" class="chip f-' + f.id + '" data-act="flavor" data-val="' + f.id + '" aria-pressed="' + on + '"><i class="dot"></i>' + f.name + '</button>';
+    }).join('');
+    $('#flavor-hint').textContent = S.flavors.length > 1 ? 'Näytetään reseptit, joissa on kaikki valitut maut.' : (S.flavors.length ? '' : 'Napauta makuja rajataksesi listaa.');
+    $('#ing-tokens').innerHTML = S.sel.map(function (id, i) {
+      return '<span class="tok"><span class="cap">' + esc(nameOf(id)) + '</span><button type="button" data-act="rm-ing" data-val="' + i + '" aria-label="Poista ' + esc(nameOf(id)) + '">×</button></span>';
+    }).join('');
+    $$('#ing-mode button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-val') === S.ingMode)); });
+    $('#mode-hint').textContent = S.ingMode === 'include'
+      ? 'Reseptit, joissa on kaikki lisäämäsi ainekset.'
+      : 'Reseptit, jotka voit tehdä sillä mitä sinulla on, vähiten puuttuvia ensin. Perusaineita ei lasketa puuttuviksi.';
+    var n = S.flavors.length + S.sel.length;
+    var badge = $('#fbadge');
+    badge.hidden = !n;
+    badge.textContent = n;
+  }
+
+  function cardHTML(x) {
+    var r = x.r, f = r.flavors || {};
+    var tags = flavorIds(f).map(function (id) { return ftag(id, f[id]); }).join('');
+    var line = '';
+    if (x.info && x.info.kind === 'include') {
+      line = '<p class="ing-line">Sisältää: ' + S.sel.map(function (id) { return '<b>' + esc(nameOf(id)) + '</b>'; }).join(', ') + '</p>';
+    } else if (x.info && x.info.kind === 'pantry') {
+      var m = x.info.missing, have = x.info.total - m.length;
+      var names = m.slice(0, 3).map(function (id) { return esc(nameOf(id)); }).join(', ') + (m.length > 3 ? ' ja ' + (m.length - 3) + ' muuta' : '');
+      line = '<p class="ing-line"><b>Sinulla ' + have + '/' + x.info.total + '</b>' + (m.length ? ' <span class="miss">· puuttuu: ' + names + '</span>' : ' <span class="miss">· sinulla on kaikki</span>') + '</p>';
+    }
+    return '<a class="card" href="#recipe-' + esc(r.id) + '"><div class="head"><h3>' + esc(r.title) + '</h3>' + (r.example ? '<span class="tag">Esimerkki</span>' : '') + '</div>' +
+      '<p class="meta">' + esc(metaText(r)) + '</p>' + (tags ? '<div class="ftags">' + tags + '</div>' : '') + line + '</a>';
+  }
+
+  function renderList() {
+    renderFilters();
+    var box = $('#results');
+    if (!ready()) { box.innerHTML = loadingHTML(); return; }
+    if (!S.recipes.length) {
+      box.innerHTML = '<div class="empty"><strong>Reseptikirjasi on tyhjä</strong><p>Lisää resepti ja merkitse sen maut. Sitten voit hakea sekä maun että kaapin sisällön mukaan.</p><button class="btn primary" type="button" data-act="new">Lisää ensimmäinen resepti</button></div>';
+      return;
+    }
+    var res = runSearch();
+    var active = S.q || S.flavors.length || S.sel.length;
+    var html = '<div class="rhead"><span aria-live="polite">' + plural(res.length, 'resepti', 'reseptiä') + '</span>' +
+      (active ? '<button class="btn quiet sm" type="button" data-act="clear">Tyhjennä rajaukset</button>' : '') + '</div>';
+    if (!res.length) {
+      var parts = S.flavors.map(function (id) { return FL[id].name.toLowerCase(); });
+      html += '<div class="empty"><strong>Mikään resepti ei vastaa hakua</strong><p>' +
+        (S.flavors.length > 1 ? 'Yhdelläkään reseptillä ei ole kaikkia makuja: ' + parts.join(', ') + '. Poista jokin maku laajentaaksesi hakua.' : 'Kokeile vähemmän aineksia tai vaihda tilaan ”Minulla on nämä”.') + '</p></div>';
+    } else {
+      html += '<div class="list">' + res.map(cardHTML).join('') + '</div>';
+    }
+    var ex = S.recipes.filter(function (r) { return r.example; }).length;
+    if (ex) {
+      html += '<div class="note"><span>' + plural(ex, 'esimerkkiresepti', 'esimerkkireseptiä') + ' hakujen kokeiluun.</span>' +
+        (S.confirmEx ? '<span><button class="btn danger sm" type="button" data-act="rm-ex-yes">Poista esimerkit</button> <button class="btn quiet sm" type="button" data-act="rm-ex-no">Säilytä</button></span>'
+          : '<button class="btn quiet sm" type="button" data-act="rm-ex">Poista esimerkit</button>') + '</div>';
+    }
+    box.innerHTML = html;
+  }
+
+  /* ---------- detail view ---------- */
+  function ingListHTML(r) {
+    var base = r.servings || 0, f = (base && S.serv) ? S.serv / base : 1;
+    var h = rowsOf(r).map(function (x) {
+      var has = x.amount > 0;
+      var amt = has ? fmtAmt(x.amount * f, x.unit) + ' ' + x.unit : 'maun mukaan';
+      var hit = S.sel.indexOf(x.id) > -1;
+      return '<li><span class="amt' + (has ? '' : ' soft') + '">' + esc(amt) + '</span><span class="cap">' + esc(nameOf(x.id)) + '</span>' + (hit ? '<span class="have">Kaapissa</span>' : '<span></span>') + '</li>';
+    }).join('');
+    h += legacyOf(r).map(function (s) { return '<li class="plain"><span>' + esc(s) + '</span></li>'; }).join('');
+    return h;
+  }
+  function renderDetail() {
+    var r = findR(S.rid);
+    if (!r) {
+      if (!ready()) { V.detail.innerHTML = '<header class="top"><button class="btn quiet" data-act="back" type="button">← Kaikki reseptit</button></header>' + loadingHTML(); return; }
+      location.hash = ''; return;
+    }
+    if (S.serv == null) S.serv = r.servings || 0;
+    var f = r.flavors || {};
+    var prof = flavorIds(f).map(function (id) {
+      return '<div class="prow f-' + id + '"><span class="nm"><i style="width:11px;height:11px;border-radius:50%;background:var(--c);display:inline-block"></i>' + FL[id].name + '</span>' +
+        '<div class="meter" aria-hidden="true"><i' + (f[id] >= 1 ? ' class="on"' : '') + '></i><i' + (f[id] >= 2 ? ' class="on"' : '') + '></i><i' + (f[id] >= 3 ? ' class="on"' : '') + '></i></div><span class="lvl">' + LEVELS[f[id]] + '</span></div>';
+    }).join('');
+    var steps = (r.steps || []).map(function (s) { return '<li><span>' + esc(s) + '</span></li>'; }).join('');
+    var del = S.confirm
+      ? '<span class="hint">Poistetaanko resepti lopullisesti?</span><button class="btn danger" type="button" data-act="del-yes">Poista</button><button class="btn quiet" type="button" data-act="del-no">Säilytä</button>'
+      : '<button class="btn danger" type="button" data-act="del-ask">Poista resepti</button>';
+    var stepper = r.servings
+      ? '<div class="stepper"><span class="ctl"><button type="button" data-act="serv-" aria-label="Vähemmän annoksia">−</button><input id="serv-in" type="number" inputmode="numeric" min="1" max="99" value="' + S.serv + '" aria-label="Annosmäärä"><button type="button" data-act="serv+" aria-label="Enemmän annoksia">+</button></span><span>annosta</span></div>'
+      : '';
+    V.detail.innerHTML =
+      '<header class="top"><button class="btn quiet" data-act="back" type="button">← Kaikki reseptit</button><button class="btn" data-act="edit" type="button">Muokkaa</button></header>' +
+      '<article class="detail"><div class="sec"><h2 class="title">' + esc(r.title) + '</h2><p class="meta">' + esc(metaText(r)) + '</p></div>' +
+      (prof ? '<div class="sec"><div class="lbl">Makuprofiili</div><div class="profile">' + prof + '</div></div>' : '') +
+      '<div class="sec"><div class="sechead"><div class="lbl">Ainekset</div>' + stepper + '</div><ul class="ingl" id="ingl">' + ingListHTML(r) + '</ul></div>' +
+      (steps ? '<div class="sec"><div class="lbl">Valmistus</div><ol class="steps">' + steps + '</ol></div>' : '') +
+      (r.notes ? '<div class="sec"><div class="lbl">Muistiinpanot</div><p class="notes-text">' + esc(r.notes) + '</p></div>' : '') +
+      '<div class="actions">' + del + '</div></article>';
+  }
+  function setServ(v) {
+    S.serv = Math.max(1, Math.min(99, v));
+    var inp = $('#serv-in');
+    if (inp) inp.value = S.serv;
+    var r = findR(S.rid);
+    if (r && $('#ingl')) $('#ingl').innerHTML = ingListHTML(r);
+  }
+
+  /* ---------- editor ---------- */
+  function paintFlavorBtn(b) {
+    var id = b.getAttribute('data-val'), lv = S.draft.flavors[id] || 0;
+    b.className = 'chip f-' + id + (lv ? ' lv' + lv : '');
+    b.innerHTML = '<i class="dot"></i>' + FL[id].name + (lv ? pips(lv) : '');
+    b.setAttribute('aria-label', FL[id].name + ': ' + (lv ? LEVELS[lv].toLowerCase() : 'ei asetettu'));
+  }
+  function rowBy(k) { for (var i = 0; i < S.draft.rows.length; i++) if (S.draft.rows[i].k === k) return S.draft.rows[i]; return null; }
+  function usedIds(k) { return S.draft.rows.filter(function (r) { return r.k !== k && r.id; }).map(function (r) { return r.id; }); }
+  function confirmHTML(n) {
+    var sim = suggest(n.name);
+    return '<div class="confirm"><p><strong>Lisätäänkö ”' + esc(n.name) + '” uudeksi ainekseksi sovellukseen?</strong></p>' +
+      (sim.length ? '<p class="hint">Listassa on samankaltainen: ' + sim.slice(0, 3).map(function (g) { return esc(g.name); }).join(', ') + '. Jos tarkoitit sitä, valitse se alta.</p>' : '') +
+      '<div class="group"><div class="lbl">Oletusyksikkö</div>' + unitSeg('newunit', n.unit) + '</div>' +
+      '<div class="actions"><button class="btn primary" type="button" data-act="new-yes">Lisää aines</button><button class="btn quiet" type="button" data-act="new-no">Peruuta</button></div>' +
+      (sim.length ? '<div class="sugg">' + suggHTML('row:' + n.k, n.name, false, usedIds(n.k)) + '</div>' : '') + '</div>';
+  }
+  function renderRows() {
+    var d = S.draft;
+    $('#e-rows').innerHTML = d.rows.map(function (row) {
+      var g = row.id ? S.map[row.id] : null;
+      var conf = d.newIng && d.newIng.k === row.k ? confirmHTML(d.newIng) : '';
+      var head;
+      if (g) {
+        head = '<div class="ihead"><span class="cap name">' + esc(g.name) + '</span><button type="button" class="btn quiet sm" data-act="row-change" data-val="' + row.k + '">Vaihda</button></div>';
+      } else {
+        head = '<div class="pick"><input class="pick-in" id="pi-' + row.k + '" data-ctx="row:' + row.k + '" value="' + esc(row.text) + '" placeholder="Hae ainesta, esim. tomaatti" autocomplete="off" autocapitalize="none" aria-label="Aines"><div class="sugg">' + (conf ? '' : suggHTML('row:' + row.k, row.text, true, usedIds(row.k))) + '</div></div>';
+      }
+      return '<div class="irow">' + head + conf +
+        '<div class="line2"><input data-f="amount" data-k="' + row.k + '" id="am-' + row.k + '" inputmode="decimal" value="' + esc(row.amount) + '" placeholder="Määrä, esim. 3,5" aria-label="Määrä">' +
+        '<select data-f="unit" data-k="' + row.k + '" aria-label="Yksikkö">' + UNITS.map(function (u) { return '<option' + (u === row.unit ? ' selected' : '') + '>' + u + '</option>'; }).join('') + '</select>' +
+        '<button type="button" class="btn quiet" data-act="row-del" data-val="' + row.k + '" aria-label="Poista rivi">×</button></div></div>';
+    }).join('');
+  }
+  function buildEdit() {
+    var r = S.rid ? findR(S.rid) : null;
+    if (S.rid && !r) {
+      if (!ready()) { V.edit.innerHTML = '<header class="top"><button class="btn quiet" data-act="back" type="button">Peruuta</button></header>' + loadingHTML(); return; }
+      location.hash = ''; return;
+    }
+    if (!ready()) { V.edit.innerHTML = '<header class="top"><button class="btn quiet" data-act="back" type="button">Peruuta</button></header>' + loadingHTML(); return; }
+    S.editBuilt = true;
+    var d = r || { title: '', time: 0, servings: 0, flavors: {}, ingredients: [], steps: [], notes: '' };
+    S.draft = {
+      flavors: Object.assign({}, d.flavors || {}),
+      rows: rowsOf(d).map(function (x) { return { k: nk(), id: x.id, text: '', amount: x.amount > 0 ? String(x.amount).replace('.', ',') : '', unit: x.unit || 'g' }; }),
+      newIng: null
+    };
+    if (!S.draft.rows.length) S.draft.rows.push({ k: nk(), id: null, text: '', amount: '', unit: 'g' });
+    V.edit.innerHTML =
+      '<header class="top"><button class="btn quiet" data-act="cancel" type="button">Peruuta</button><h2>' + (r ? 'Muokkaa reseptiä' : 'Uusi resepti') + '</h2><button class="btn primary" data-act="save" type="button">Tallenna</button></header>' +
+      '<form class="form" id="e-form" novalidate>' +
+      '<label class="field"><span class="lbl">Nimi</span><input id="e-title" value="' + esc(d.title) + '" placeholder="Savuinen tomaatti-kikhernepata" autocomplete="off"></label>' +
+      '<div class="row2"><label class="field"><span class="lbl">Aika (min)</span><input id="e-time" type="number" inputmode="numeric" min="0" value="' + (d.time || '') + '"></label>' +
+      '<label class="field"><span class="lbl">Annokset</span><input id="e-serv" type="number" inputmode="numeric" min="1" value="' + (d.servings || '') + '"></label></div>' +
+      '<fieldset class="group"><legend class="lbl">Makuprofiili</legend><p class="hint">Napauta makua asettaaksesi sen voimakkuuden: häivähdys, keskivahva, voimakas. Napauta uudestaan nostaaksesi ja vielä kerran poistaaksesi.</p><div class="chips" id="e-flavors">' +
+      FLAVORS.map(function (f) { return '<button type="button" data-act="efl" data-val="' + f.id + '"></button>'; }).join('') + '</div></fieldset>' +
+      '<div class="group"><div class="lbl">Ainekset</div><p class="hint">Valitse aines listasta. Jos ainesta ei ole, voit lisätä sen uutena. Annosmäärä ja määrät skaalautuvat reseptin katselussa.</p><div class="rows" id="e-rows"></div><div><button class="btn" type="button" data-act="row-add">Lisää aines</button></div></div>' +
+      '<label class="field"><span class="lbl">Valmistus</span><textarea id="e-steps" rows="7" placeholder="Pehmennä sipuli öljyssä.">' + esc((d.steps || []).join('\n')) + '</textarea><span class="hint">Yksi vaihe per rivi.</span></label>' +
+      '<label class="field"><span class="lbl">Muistiinpanot</span><textarea id="e-notes" rows="3" placeholder="Mitä muuttaisit ensi kerralla">' + esc(d.notes || '') + '</textarea></label>' +
+      '<p class="err" id="e-err" role="alert"></p>' +
+      '<div class="actions"><button class="btn primary" type="button" data-act="save">Tallenna resepti</button><button class="btn quiet" type="button" data-act="cancel">Peruuta</button></div></form>';
+    $$('#e-flavors button').forEach(paintFlavorBtn);
+    renderRows();
+    $('#e-form').addEventListener('submit', function (e) { e.preventDefault(); });
+  }
+  function lines(v) {
+    return String(v || '').split('\n').map(function (s) { return s.replace(/^\s*(\d+[.)]|[-•*])\s*/, '').trim(); }).filter(Boolean);
+  }
+  function num(v) { var n = parseInt(v, 10); return isFinite(n) && n > 0 ? n : 0; }
+  function fail(msg, el) { $('#e-err').textContent = msg; if (el) el.focus(); }
+  function doSave() {
+    if (S.busy) return;
+    var d = S.draft;
+    $('#e-err').textContent = '';
+    var title = $('#e-title').value.trim();
+    if (!title) return fail('Anna reseptille nimi.', $('#e-title'));
+    var serv = num($('#e-serv').value);
+    if (!serv) return fail('Anna annosmäärä (vähintään 1), jotta määrät voi skaalata.', $('#e-serv'));
+    var rows = [], seen = {};
+    for (var i = 0; i < d.rows.length; i++) {
+      var row = d.rows[i];
+      var blank = !row.id && !String(row.text).trim() && !String(row.amount).trim();
+      if (blank) continue;
+      if (!row.id) {
+        var t = String(row.text).trim();
+        return fail(t ? 'Valitse aines listasta tai lisää ”' + t + '” uutena ainekseksi.' : 'Valitse aines riville, jolla on määrä.', $('#pi-' + row.k));
+      }
+      if (seen[row.id]) return fail('Aines ”' + nameOf(row.id) + '” on reseptissä kahdesti. Yhdistä rivit.', null);
+      seen[row.id] = 1;
+      var a = parseAmt(row.amount);
+      if (a !== null && isNaN(a)) return fail('Tarkista määrä aineksessa ”' + nameOf(row.id) + '”. Käytä lukua, esim. 2 tai 3,5.', $('#am-' + row.k));
+      rows.push({ id: row.id, amount: a, unit: row.unit });
+    }
+    var fl = {};
+    Object.keys(d.flavors).forEach(function (k) { if (d.flavors[k] > 0) fl[k] = d.flavors[k]; });
+    var id = S.rid || newId('r');
+    var rec = {
+      id: id, title: title, time: num($('#e-time').value), servings: serv,
+      flavors: fl, ingredients: rows, steps: lines($('#e-steps').value),
+      notes: $('#e-notes').value.trim(), example: false, updated: Date.now()
+    };
+    S.busy = true;
+    $$('[data-act="save"]').forEach(function (b) { b.disabled = true; });
+    persistDoc('recipes', rec).then(function () {
+      S.busy = false; toast('Tallennettu'); location.hash = 'recipe-' + id;
+    }).catch(function () {
+      S.busy = false;
+      $$('[data-act="save"]').forEach(function (b) { b.disabled = false; });
+      toast('Tallennus epäonnistui. Tarkista yhteys ja yritä uudelleen.');
+    });
+  }
+  function createIngredient(name, unit) {
+    var g = { id: newId('i'), name: plain(name), unit: unit, staple: false };
+    return persistDoc('ingredients', g).then(function () { return g; });
+  }
+
+  /* ---------- ingredients screen ---------- */
+  function buildIngs() {
+    S.editIng = null; S.mergeFor = null; S.mergeTarget = null; S.delIng = null; S.addWarn = null; S.ingq = ''; S.addUnit = 'g';
+    V.ings.innerHTML =
+      '<header class="top"><button class="btn quiet" data-act="back" type="button">← Reseptit</button><h2 class="left">Ainekset</h2></header>' +
+      '<div class="screen"><p class="hint">Kaikki reseptit käyttävät tätä listaa, joten kirjoitusvirheet eivät piilota reseptejä haussa. Nimen vaihtaminen päivittää sen kaikkiin resepteihin.</p>' +
+      '<form class="iadd" id="ing-add" autocomplete="off"><input id="ing-new" placeholder="Uusi aines, esim. kookosmaito" aria-label="Uuden aineksen nimi" autocapitalize="none">' +
+      '<div class="urow"><div class="lbl">Oletusyksikkö</div>' + unitSeg('add-unit', 'g') + '<button class="btn primary" type="submit">Lisää</button></div></form>' +
+      '<div id="add-msg"></div>' +
+      '<label class="field"><span class="sr">Etsi ainesta</span><input id="ingq" type="search" placeholder="Etsi listasta" autocomplete="off"></label>' +
+      '<div id="ings-list"></div></div>';
+    renderIngList();
+  }
+  function ingRowHTML(g) {
+    var n = usage(g.id);
+    var use = plural(n, 'reseptissä', 'reseptissä');
+    if (S.editIng !== g.id) {
+      return '<div class="lrow"><button type="button" class="lmain" data-act="ing-open" data-val="' + esc(g.id) + '"><span class="cap lname">' + esc(g.name) + '</span><span class="lmeta">' + (g.staple ? 'perusaine · ' : '') + g.unit + ' · ' + use + '</span></button></div>';
+    }
+    var tail;
+    if (S.mergeFor === g.id) {
+      if (!S.mergeTarget) {
+        tail = '<div class="group"><div class="lbl">Yhdistä aineeseen</div><div class="pick"><input class="pick-in" id="merge-in" data-ctx="merge" placeholder="Hae aines, johon yhdistät" autocomplete="off" autocapitalize="none" aria-label="Kohdeaines"><div class="sugg"></div></div></div><div class="actions"><button class="btn quiet" type="button" data-act="ing-merge-cancel">Peruuta</button></div>';
+      } else {
+        tail = '<div class="confirm"><p><strong>Yhdistetäänkö ”' + esc(g.name) + '” aineeseen ”' + esc(nameOf(S.mergeTarget)) + '”?</strong></p><p class="hint">' + (n ? plural(n, 'resepti', 'reseptiä') + ' siirretään käyttämään kohdeainesta. ' : '') + 'Aines ”' + esc(g.name) + '” poistetaan listalta.</p><div class="actions"><button class="btn primary" type="button" data-act="ing-merge-yes">Yhdistä</button><button class="btn quiet" type="button" data-act="ing-merge-cancel">Peruuta</button></div></div>';
+      }
+    } else if (S.delIng === g.id) {
+      tail = '<div class="confirm"><p><strong>Poistetaanko ”' + esc(g.name) + '” listalta?</strong></p><div class="actions"><button class="btn danger" type="button" data-act="ing-del-yes">Poista</button><button class="btn quiet" type="button" data-act="ing-del-no">Säilytä</button></div></div>';
+    } else {
+      tail = '<div class="actions"><button class="btn primary" type="button" data-act="ing-save">Tallenna</button><button class="btn" type="button" data-act="ing-merge">Yhdistä toiseen…</button>' +
+        (n ? '' : '<button class="btn danger" type="button" data-act="ing-del-ask">Poista</button>') + '<button class="btn quiet" type="button" data-act="ing-close">Sulje</button></div>' +
+        (n ? '<p class="hint">Aines on käytössä ' + use + ', joten sitä ei voi poistaa. Yhdistä se toiseen ainekseen tai poista se ensin resepteistä.</p>' : '');
+    }
+    return '<div class="lrow"><div class="lpanel">' +
+      '<label class="field"><span class="lbl">Nimi</span><input id="ie-name" value="' + esc(g.name) + '" autocomplete="off" autocapitalize="none"></label>' +
+      '<div class="group"><div class="lbl">Oletusyksikkö</div>' + unitSeg('ing-unit', S.editUnit) + '</div>' +
+      '<label class="chk"><input type="checkbox" id="ie-staple"' + (g.staple ? ' checked' : '') + '><span>Perusaine, jota ei lasketa puuttuvaksi haussa (esim. suola, vesi)</span></label>' +
+      tail + '</div></div>';
+  }
+  function renderIngList() {
+    var box = $('#ings-list');
+    if (!box) return;
+    if (!ready()) { box.innerHTML = loadingHTML(); return; }
+    var q = norm(S.ingq);
+    var list = S.ings.filter(function (g) { return !q || norm(g.name).indexOf(q) > -1; }).sort(byName);
+    var h = '<div class="rhead"><span>' + plural(list.length, 'aines', 'ainesta') + '</span></div>';
+    if (!list.length) h += '<div class="empty"><p>' + (S.ings.length ? 'Ei hakua vastaavia aineksia.' : 'Lista on tyhjä. Lisää ensimmäinen aines yllä.') + '</p></div>';
+    else h += list.map(ingRowHTML).join('');
+    box.innerHTML = h;
+  }
+  function addIngFromScreen(force) {
+    var inp = $('#ing-new'), msg = $('#add-msg');
+    var name = plain(inp.value);
+    msg.innerHTML = '';
+    if (!name) { inp.focus(); return; }
+    var ex = exact(name);
+    if (ex) { msg.innerHTML = '<p class="err">Aines ”' + esc(ex.name) + '” on jo listassa.</p>'; return; }
+    var sim = suggest(name);
+    if (sim.length && !force) {
+      msg.innerHTML = '<div class="confirm"><p><strong>Listassa on samankaltainen: ' + sim.slice(0, 3).map(function (g) { return esc(g.name); }).join(', ') + '.</strong></p><p class="hint">Lisätäänkö ”' + esc(name) + '” silti uutena ainekseksi?</p><div class="actions"><button class="btn primary" type="button" data-act="add-ing-yes">Lisää silti</button><button class="btn quiet" type="button" data-act="add-ing-no">Peruuta</button></div></div>';
+      return;
+    }
+    createIngredient(name, S.addUnit).then(function () {
+      inp.value = ''; msg.innerHTML = '';
+      toast('Aines lisätty');
+      renderIngList();
+    }).catch(function () { toast('Lisääminen epäonnistui. Yritä uudelleen.'); });
+  }
+  function mergeIng(src, tgt) {
+    var affected = S.recipes.filter(function (r) { return rowsOf(r).some(function (x) { return x.id === src; }); });
+    return affected.reduce(function (p, r) {
+      return p.then(function () {
+        var rows = [], idx = {};
+        rowsOf(r).forEach(function (x) {
+          var id = x.id === src ? tgt : x.id;
+          var y = { id: id, amount: x.amount, unit: x.unit };
+          var at = idx[id];
+          if (at !== undefined && rows[at].unit === y.unit && rows[at].amount != null && y.amount != null) rows[at].amount += y.amount;
+          else { idx[id] = rows.length; rows.push(y); }
+        });
+        var nr = Object.assign({}, r, { ingredients: rows.concat(legacyOf(r)), updated: Date.now() });
+        return persistDoc('recipes', nr);
+      });
+    }, Promise.resolve()).then(function () { return removeDoc('ingredients', src); });
+  }
+
+  /* ---------- routing ---------- */
+  function route() {
+    var h = location.hash.replace(/^#/, '');
+    if (h === 'new') return { v: 'edit', id: null };
+    if (h === 'ainekset') return { v: 'ings', id: null };
+    if (h.indexOf('edit-') === 0) return { v: 'edit', id: h.slice(5) };
+    if (h.indexOf('recipe-') === 0) return { v: 'detail', id: h.slice(7) };
+    return { v: 'list', id: null };
+  }
+  function showRoute() {
+    if (S.view === 'list') S.scroll = window.scrollY;
+    var rt = route();
+    S.view = rt.v; S.rid = rt.id; S.confirm = false; S.confirmEx = false; S.editBuilt = false; S.serv = null;
+    V.list.hidden = rt.v !== 'list';
+    V.detail.hidden = rt.v !== 'detail';
+    V.edit.hidden = rt.v !== 'edit';
+    V.ings.hidden = rt.v !== 'ings';
+    if (rt.v === 'detail') renderDetail();
+    else if (rt.v === 'edit') buildEdit();
+    else if (rt.v === 'ings') buildIngs();
+    else renderList();
+    window.scrollTo(0, rt.v === 'list' ? S.scroll : 0);
+  }
+  function onData() {
+    if (S.view === 'list') renderList();
+    else if (S.view === 'detail') renderDetail();
+    else if (S.view === 'edit' && !S.editBuilt) buildEdit();
+    else if (S.view === 'ings' && !S.editIng) renderIngList();
+  }
+
+  /* ---------- events ---------- */
+  function focusLater(id) { setTimeout(function () { var el = document.getElementById(id); if (el) el.focus(); }, 0); }
+  function pickCtx(ctx, id) {
+    if (ctx === 'search') {
+      if (S.sel.indexOf(id) < 0) S.sel.push(id);
+      $('#ing').value = ''; $('#ing-sugg').innerHTML = '';
+      renderList();
+    } else if (ctx.indexOf('row:') === 0) {
+      var row = rowBy(ctx.slice(4));
+      if (!row) return;
+      row.id = id; row.text = ''; row.unit = S.map[id].unit;
+      S.draft.newIng = null;
+      renderRows();
+      focusLater('am-' + row.k);
+    } else if (ctx === 'merge') {
+      S.mergeTarget = id;
+      renderIngList();
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-act]');
+    if (!t) return;
+    var act = t.getAttribute('data-act'), val = t.getAttribute('data-val');
+    var row, id, r;
+    switch (act) {
+      case 'flavor':
+        var i = S.flavors.indexOf(val);
+        if (i > -1) S.flavors.splice(i, 1); else S.flavors.push(val);
+        renderList(); break;
+      case 'rm-ing': S.sel.splice(parseInt(val, 10), 1); renderList(); break;
+      case 'mode': S.ingMode = val; renderList(); break;
+      case 'clear': S.q = ''; S.flavors = []; S.sel = []; $('#q').value = ''; renderList(); break;
+      case 'new': location.hash = 'new'; break;
+      case 'goings': location.hash = 'ainekset'; break;
+      case 'back': location.hash = ''; break;
+      case 'edit': location.hash = 'edit-' + S.rid; break;
+      case 'cancel': location.hash = S.rid ? 'recipe-' + S.rid : ''; break;
+      case 'save': doSave(); break;
+      case 'efl':
+        S.draft.flavors[val] = ((S.draft.flavors[val] || 0) + 1) % 4;
+        paintFlavorBtn(t); break;
+      case 'serv-': setServ((S.serv || 1) - 1); break;
+      case 'serv+': setServ((S.serv || 1) + 1); break;
+      case 'del-ask': S.confirm = true; renderDetail(); break;
+      case 'del-no': S.confirm = false; renderDetail(); break;
+      case 'del-yes':
+        removeDoc('recipes', S.rid).then(function () { toast('Resepti poistettu'); location.hash = ''; })
+          .catch(function () { toast('Poistaminen epäonnistui. Yritä uudelleen.'); });
+        break;
+      case 'rm-ex': S.confirmEx = true; renderList(); break;
+      case 'rm-ex-no': S.confirmEx = false; renderList(); break;
+      case 'rm-ex-yes':
+        var ids = S.recipes.filter(function (x) { return x.example; }).map(function (x) { return x.id; });
+        S.confirmEx = false;
+        ids.reduce(function (p, rid) { return p.then(function () { return removeDoc('recipes', rid); }); }, Promise.resolve())
+          .then(function () { toast('Esimerkit poistettu'); onData(); })
+          .catch(function () { toast('Kaikkia esimerkkejä ei voitu poistaa.'); onData(); });
+        break;
+      case 'pick': pickCtx(t.getAttribute('data-ctx'), val); break;
+      case 'pick-new':
+        row = rowBy(t.getAttribute('data-ctx').slice(4));
+        if (!row) break;
+        S.draft.newIng = { k: row.k, name: val, unit: 'g' };
+        renderRows(); break;
+      case 'newunit': S.draft.newIng.unit = val; setPressed(t); break;
+      case 'new-no': S.draft.newIng = null; renderRows(); break;
+      case 'new-yes':
+        var n = S.draft.newIng;
+        if (!n) break;
+        var ex = exact(n.name);
+        var done = function (g) {
+          var rw = rowBy(n.k);
+          if (rw) { rw.id = g.id; rw.text = ''; rw.unit = g.unit; }
+          S.draft.newIng = null;
+          renderRows();
+          focusLater('am-' + n.k);
+        };
+        if (ex) { done(ex); break; }
+        createIngredient(n.name, n.unit).then(function (g) { toast('Aines lisätty'); done(g); })
+          .catch(function () { toast('Lisääminen epäonnistui. Yritä uudelleen.'); });
+        break;
+      case 'row-change':
+        row = rowBy(val);
+        if (row) { row.id = null; row.text = ''; renderRows(); focusLater('pi-' + row.k); }
+        break;
+      case 'row-del':
+        S.draft.rows = S.draft.rows.filter(function (x) { return x.k !== val; });
+        if (S.draft.newIng && S.draft.newIng.k === val) S.draft.newIng = null;
+        if (!S.draft.rows.length) S.draft.rows.push({ k: nk(), id: null, text: '', amount: '', unit: 'g' });
+        renderRows(); break;
+      case 'row-add':
+        row = { k: nk(), id: null, text: '', amount: '', unit: 'g' };
+        S.draft.rows.push(row);
+        renderRows();
+        focusLater('pi-' + row.k); break;
+      case 'add-unit': S.addUnit = val; setPressed(t); break;
+      case 'add-ing-yes': addIngFromScreen(true); break;
+      case 'add-ing-no': $('#add-msg').innerHTML = ''; break;
+      case 'ing-open':
+        S.editIng = val; S.editUnit = S.map[val] ? S.map[val].unit : 'g';
+        S.mergeFor = null; S.mergeTarget = null; S.delIng = null;
+        renderIngList(); break;
+      case 'ing-close': S.editIng = null; S.mergeFor = null; S.mergeTarget = null; S.delIng = null; renderIngList(); break;
+      case 'ing-unit': S.editUnit = val; setPressed(t); break;
+      case 'ing-save':
+        id = S.editIng;
+        var g0 = S.map[id];
+        if (!g0) break;
+        var nm = plain($('#ie-name').value);
+        if (!nm) { toast('Anna ainekselle nimi.'); break; }
+        var other = exact(nm);
+        if (other && other.id !== id) { toast('Samanniminen aines on jo listassa. Käytä Yhdistä toiseen -toimintoa.'); break; }
+        persistDoc('ingredients', { id: id, name: nm, unit: S.editUnit, staple: $('#ie-staple').checked })
+          .then(function () { S.editIng = null; toast('Tallennettu'); renderIngList(); })
+          .catch(function () { toast('Tallennus epäonnistui. Yritä uudelleen.'); });
+        break;
+      case 'ing-merge': S.mergeFor = S.editIng; S.mergeTarget = null; renderIngList(); focusLater('merge-in'); break;
+      case 'ing-merge-cancel': S.mergeFor = null; S.mergeTarget = null; renderIngList(); break;
+      case 'ing-merge-yes':
+        var src = S.mergeFor, tgt = S.mergeTarget;
+        mergeIng(src, tgt).then(function () {
+          S.editIng = null; S.mergeFor = null; S.mergeTarget = null;
+          toast('Ainekset yhdistetty'); renderIngList();
+        }).catch(function () { toast('Yhdistäminen keskeytyi. Tarkista reseptit ja yritä uudelleen.'); renderIngList(); });
+        break;
+      case 'ing-del-ask': S.delIng = S.editIng; renderIngList(); break;
+      case 'ing-del-no': S.delIng = null; renderIngList(); break;
+      case 'ing-del-yes':
+        removeDoc('ingredients', S.delIng).then(function () { S.editIng = null; S.delIng = null; toast('Aines poistettu'); renderIngList(); })
+          .catch(function () { toast('Poistaminen epäonnistui. Yritä uudelleen.'); });
+        break;
+    }
+  });
+
+  document.addEventListener('input', function (e) {
+    var t = e.target, box, ctx;
+    if (t.classList && t.classList.contains('pick-in')) {
+      ctx = t.getAttribute('data-ctx');
+      box = t.parentNode.querySelector('.sugg');
+      if (ctx.indexOf('row:') === 0) {
+        var row = rowBy(ctx.slice(4));
+        if (!row) return;
+        row.text = t.value;
+        if (S.draft.newIng && S.draft.newIng.k === row.k) { S.draft.newIng = null; renderRows(); focusLater('pi-' + row.k); return; }
+        box.innerHTML = suggHTML(ctx, t.value, true, usedIds(row.k));
+      } else if (ctx === 'search') box.innerHTML = suggHTML(ctx, t.value, false, S.sel);
+      else if (ctx === 'merge') box.innerHTML = suggHTML(ctx, t.value, false, [S.mergeFor]);
+    } else if (t.getAttribute && t.getAttribute('data-f') === 'amount') {
+      var rw = rowBy(t.getAttribute('data-k'));
+      if (rw) rw.amount = t.value;
+    } else if (t.id === 'serv-in') {
+      var v = parseInt(t.value, 10);
+      if (v >= 1 && v <= 99) {
+        S.serv = v;
+        var rr = findR(S.rid);
+        if (rr && $('#ingl')) $('#ingl').innerHTML = ingListHTML(rr);
+      }
+    } else if (t.id === 'ingq') {
+      S.ingq = t.value;
+      renderIngList();
+    }
+  });
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.getAttribute && t.getAttribute('data-f') === 'unit') {
+      var rw = rowBy(t.getAttribute('data-k'));
+      if (rw) rw.unit = t.value;
+    }
+  });
+  $('#q').addEventListener('input', function (e) { S.q = e.target.value; renderList(); });
+  $('#ing-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var inp = $('#ing'), txt = inp.value.trim();
+    if (!txt) return;
+    var g = exact(txt) || suggest(txt).filter(function (x) { return S.sel.indexOf(x.id) < 0; })[0];
+    if (g) pickCtx('search', g.id);
+    inp.focus();
+  });
+  document.addEventListener('submit', function (e) {
+    if (e.target.id === 'ing-add') { e.preventDefault(); addIngFromScreen(false); }
+  });
+  window.addEventListener('hashchange', showRoute);
+
+  showRoute();
+  init();
+})();
+</script>
+
+</body></html>
