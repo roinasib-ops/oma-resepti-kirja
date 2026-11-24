@@ -10,7 +10,7 @@ Tästä syntyi ensimmäinen prototyyppi applikaatiolle. Ensimmäinen versio autt
 
 
 
-Ohjelma oli aluksi englanninkielinen. Halusin sen suomenkieliseksi. Halusin vielä, että kaikki reseptiin syötetyt ainesosat tallentuvat ja, että ohjelma "auto-suggestaa" aines osia kun alat kirjoittamaan niitä. Tämän muutoksen myötä reseptien haku ainesosilla onnistuu helpommin.
+Ohjelma oli aluksi englanninkielinen. Halusin sen suomenkieliseksi. Halusin vielä, että kaikki reseptiin syötetyt ainesosat tallentuvat ja, että ohjelma "auto-suggestaa" ainesosia kun alat kirjoittamaan niitä. Tämän muutoksen myötä reseptien haku ainesosilla onnistuu helpommin.
 
 
 

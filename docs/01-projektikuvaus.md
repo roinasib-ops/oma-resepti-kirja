@@ -8,15 +8,41 @@
 
 
 
-\## Käyttäjäskenaariot 1: Syötän reseptin ohjelmaan, tämän jälkeen ohjelma myös kysyy minulta mikä on reseptin makuprofiili. resepti sekä sen makuprofiili tallentuvat tietokantaan. 2: Syötän ohjelmaan jonkin makuprofiilin, esim. lihaisa. Tämän jälkeen ohjelma ehdottaa minulle ruokia, joille olen antanut makuprofiilin lihaisa. 3: Syötän ohjelmaan yhden tai useamman ainesosan. Tämän jälkeen ohjelma tarjoaa minulle kaikki reseptit joissa käytetään näitä ainesosia. 
+\## Käyttäjäskenaariot 
+
+1: Syötän reseptin ohjelmaan, tämän jälkeen ohjelma myös kysyy minulta mikä on reseptin makuprofiili. resepti sekä sen makuprofiili tallentuvat tietokantaan. 
+
+2: Syötän ohjelmaan jonkin makuprofiilin, esim. täyteläinen. Tämän jälkeen ohjelma ehdottaa minulle ruokia, joille olen antanut makuprofiilin täyteläinen. 
+
+3: Syötän ohjelmaan yhden tai useamman ainesosan. Tämän jälkeen ohjelma tarjoaa minulle kaikki reseptit joissa käytetään näitä ainesosia.
 
 
 
 
 
-\## Vaatimukset ja hyväksymiskriteerit: Reseptin syöttäminen:(Vaatimus: ohjelma tallentaa reseptin, sekä makuprofiilin. Hyväksymiskriteeri: Resepti löytyy tietokannasta. Reseptin hakeminen: (Vaatimus: ohjelma ehdottaa kaikkia reseptejä mitkä vastaavat syötettyä makuprofiilia tai ainesosia. Hyväksymiskriteeri: ohjelma ehdottaa kaikkia reseptejä mitkä vastaavat syötettyä makuprofiilia tai ainesosia)
+\## Vaatimukset ja hyväksymiskriteerit: 
+
+Reseptin syöttäminen:Vaatimus: ohjelma tallentaa reseptin, sekä makuprofiilin. 
+
+&#x09;Hyväksymiskriteeri: Resepti löytyy tietokannasta. 
 
 
+
+Reseptin hakeminen: Vaatimus: ohjelma ehdottaa kaikkia reseptejä mitkä vastaavat syötettyä makuprofiilia tai ainesosia.
+
+&#x09;Hyväksymiskriteeri: ohjelma ehdottaa kaikkia reseptejä mitkä vastaavat syötettyä makuprofiilia tai ainesosia
+
+
+
+Reseptien tallentaminen: Vaatimus: reseptit saa varmuuskopioitua omaan tiedostoon ja tuotua takaisin, mikäli reseptit poistuu.
+
+&#x09;Hyväksymiskriteeri: "Vie varmuuskopio" painike luo tiedoston haluamaan kohteeseen. "Tuo varmuuskopio" painike antaa valita resepti tiedoston, ja tuo sen resptit näkyville.
+
+
+
+Varmuuskopioinnin jakaminen: Vaatimus: Toinen käyttäjä toisella laitteella voi tuoda toisen luoman varmuuskopion ja saada hänen reseptinsä.
+
+&#x09;Hyväksymiskriteeri: Kaikki varmuuskopion reseptit tulevat toisella laitteelle näkyviin.
 
 
 
@@ -52,7 +78,5 @@ Ainesosien nimet voivat vaihdella. Sovellukseen pitää luultavasti määrittä�
 
 \## Merkittävät muutokset ja perustelut
 
-
-
-
+Luovutaan erillisistä käyttäjistä. Ohjelma oli alunperinkin ajateltu omaan käyttöön. Vaikka käyttäjistä luovutaan on reseptien jako vielä mahdollista varmuuskopioiden avulla. Lisätään tämä vaatimuksiin ja hyväksymiskriteereihin.
 
