@@ -1,0 +1,1 @@
+video linkki: https://metropoliafi-my.sharepoint.com/:v:/g/personal/roin_metropolia_fi/IQBQvwAp9gcwToraSq86Z0DMAVevvBVLWO6D5roWU5bMxus?e=jgoVMU&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D
