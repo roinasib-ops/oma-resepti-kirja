@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Makukirja</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Inter:wght@400;500;600&display=swap">
@@ -331,6 +330,10 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
   z-index: 30; opacity: 0; pointer-events: none; transition: opacity 0.15s;
 }
 #toast.show { opacity: 1; }
+
+/* Backup */
+.backup { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); display: grid; gap: 10px; }
+.backup .btns { display: flex; flex-wrap: wrap; gap: 8px; }
 @media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
 </style>
 
@@ -375,6 +378,17 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
     </details>
 
     <div id="results"></div>
+
+    <section class="backup" aria-labelledby="bk-h">
+      <div class="lbl" id="bk-h">Varmuuskopio</div>
+      <p class="hint" id="bk-note">Vie reseptit ja ainekset tiedostoksi laitteellesi tai tuo ne takaisin tiedostosta. Tuonti ei poista mitään.</p>
+      <div class="btns">
+        <button class="btn" id="bk-export" type="button" data-act="export">Vie varmuuskopio</button>
+        <button class="btn" type="button" data-act="import-pick">Tuo varmuuskopio</button>
+        <input type="file" id="imp-file" accept=".json,application/json" hidden aria-label="Varmuuskopiotiedosto">
+      </div>
+      <div id="backup-msg"></div>
+    </section>
   </section>
 
   <section id="v-detail" hidden></section>
@@ -965,6 +979,147 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
     }, Promise.resolve()).then(function () { return removeDoc('ingredients', src); });
   }
 
+  /* ---------- backup ---------- */
+  /* BK:start */
+  var ID_RE = /^[A-Za-z0-9_\-.~:@+]{1,200}$/;
+  function isNum(x) { return typeof x === 'number' && isFinite(x); }
+  function has(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+  function parseBackup(text, existing, recIds) {
+    var data;
+    try { data = JSON.parse(text); } catch (e) { return { error: 'Tiedosto ei ole kelvollinen varmuuskopio.' }; }
+    if (!data || data.app !== 'makukirja' || !Array.isArray(data.ingredients) || !Array.isArray(data.recipes)) return { error: 'Tämä ei ole Makukirjan varmuuskopio.' };
+    if (data.ingredients.length > 2000 || data.recipes.length > 5000) return { error: 'Tiedosto on liian suuri tuotavaksi.' };
+    var skipped = 0, merged = 0, replacedI = 0, replacedR = 0, ings = [], recs = [];
+    var remap = Object.create(null), byName = Object.create(null), ingIds = Object.create(null);
+    var exIds = Object.create(null), exName = Object.create(null), seenI = Object.create(null), seenR = Object.create(null);
+    existing.forEach(function (g) { byName[plain(g.name)] = g.id; ingIds[g.id] = true; exIds[g.id] = true; exName[g.id] = plain(g.name); });
+    var list = data.ingredients.slice().sort(function (a, b) {
+      return (a && exIds[a.id] ? 0 : 1) - (b && exIds[b.id] ? 0 : 1);
+    });
+    list.forEach(function (g) {
+      if (!g || typeof g !== 'object' || typeof g.id !== 'string' || !ID_RE.test(g.id) || seenI[g.id] ||
+          typeof g.name !== 'string' || !plain(g.name) || UNITS.indexOf(g.unit) < 0) { skipped++; return; }
+      seenI[g.id] = true;
+      var nm = plain(g.name), old = exIds[g.id] ? exName[g.id] : null, other = byName[nm];
+      if (other && other !== g.id) { remap[g.id] = other; merged++; return; }
+      if (old && byName[old] === g.id) delete byName[old];
+      byName[nm] = g.id;
+      ingIds[g.id] = true;
+      if (exIds[g.id]) replacedI++;
+      ings.push({ id: g.id, name: nm, unit: g.unit, staple: g.staple === true });
+    });
+    data.recipes.forEach(function (r) {
+      if (!r || typeof r !== 'object' || typeof r.id !== 'string' || !ID_RE.test(r.id) || seenR[r.id] ||
+          typeof r.title !== 'string' || !r.title.trim() || !Array.isArray(r.ingredients)) { skipped++; return; }
+      var rows = [], bad = false;
+      for (var i = 0; i < r.ingredients.length; i++) {
+        var x = r.ingredients[i];
+        if (!x || typeof x !== 'object' || typeof x.id !== 'string') { bad = true; break; }
+        var id = remap[x.id] || x.id;
+        if (!ingIds[id] || UNITS.indexOf(x.unit) < 0 || !(x.amount === null || (isNum(x.amount) && x.amount > 0))) { bad = true; break; }
+        rows.push({ id: id, amount: x.amount, unit: x.unit });
+      }
+      if (bad) { skipped++; return; }
+      var fl = {};
+      if (r.flavors && typeof r.flavors === 'object') {
+        Object.keys(r.flavors).forEach(function (k) {
+          var v = r.flavors[k];
+          if (has(FL, k) && (v === 1 || v === 2 || v === 3)) fl[k] = v;
+        });
+      }
+      seenR[r.id] = true;
+      if (recIds.indexOf(r.id) > -1) replacedR++;
+      recs.push({
+        id: r.id, title: r.title.trim(),
+        time: isNum(r.time) && r.time > 0 ? Math.round(r.time) : 0,
+        servings: isNum(r.servings) && r.servings >= 1 ? Math.round(r.servings) : 1,
+        flavors: fl, ingredients: rows,
+        steps: Array.isArray(r.steps) ? r.steps.filter(function (s) { return typeof s === 'string' && s.trim(); }) : [],
+        notes: typeof r.notes === 'string' ? r.notes : '',
+        example: r.example === true,
+        updated: isNum(r.updated) ? r.updated : Date.now()
+      });
+    });
+    return { ings: ings, recs: recs, skipped: skipped, merged: merged, replacedI: replacedI, replacedR: replacedR };
+  }
+  /* BK:end */
+
+  function initBackup() {
+    var off = function () {
+      S.dl = null;
+      $('#bk-export').hidden = true;
+      $('#bk-note').textContent = 'Tallennus tiedostoksi ei ole käytettävissä tässä näkymässä. Tiedoston tuonti toimii silti.';
+    };
+    var p = (window.claude && window.claude.use) ? window.claude.use('downloads') : Promise.resolve(null);
+    p.then(function (d) { if (d) S.dl = d; else off(); }).catch(off);
+  }
+  function doExport() {
+    if (!ready()) { toast('Odota, että reseptit latautuvat.'); return; }
+    if (!S.recipes.length && !S.ings.length) { toast('Kirjassa ei ole vielä mitään vietävää.'); return; }
+    if (!S.dl) { toast('Tallennus ei ole vielä käytettävissä. Yritä hetken päästä uudelleen.'); return; }
+    var d = new Date();
+    function p2(n) { return (n < 10 ? '0' : '') + n; }
+    var stamp = d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+    var payload = JSON.stringify({
+      app: 'makukirja', version: 1, exported: d.toISOString(),
+      ingredients: S.ings.slice().sort(byName),
+      recipes: S.recipes.slice().sort(function (a, b) { return String(a.title).localeCompare(String(b.title), 'fi'); })
+    }, null, 2);
+    S.dl.save({ filename: 'makukirja-varmuuskopio-' + stamp + '.json', data: payload }).then(function () {
+      toast('Varmuuskopio tallennettu');
+    }).catch(function (e) {
+      toast(e && e.code === 'declined' ? 'Tallennus peruttiin' : 'Tallennus ei onnistunut. Yritä uudelleen.');
+    });
+  }
+  function renderImport(errText) {
+    var msg = $('#backup-msg'), m = S.imp;
+    if (!m) { msg.innerHTML = ''; return; }
+    var notes = [];
+    if (m.replacedR) notes.push(plural(m.replacedR, 'resepti on', 'reseptiä on') + ' jo kirjassasi ja korvataan tiedoston versiolla.');
+    if (m.replacedI) notes.push(plural(m.replacedI, 'aines korvataan', 'ainesta korvataan') + ' tiedoston versiolla.');
+    if (m.merged) notes.push(plural(m.merged, 'samanniminen aines yhdistetään', 'samannimistä ainesta yhdistetään') + ' kirjassasi oleviin.');
+    if (m.skipped) notes.push(plural(m.skipped, 'virheellinen kohta ohitetaan', 'virheellistä kohtaa ohitetaan') + '.');
+    notes.push('Muita kirjassasi nyt olevia reseptejä ja aineksia ei poisteta.');
+    msg.innerHTML = '<div class="confirm"><p><strong>Tuodaanko ' + plural(m.recs.length, 'resepti', 'reseptiä') + ' ja ' + plural(m.ings.length, 'aines', 'ainesta') + ' tiedostosta?</strong></p>' +
+      '<p class="hint">' + esc(notes.join(' ')) + '</p>' + (errText ? '<p class="err">' + esc(errText) + '</p>' : '') +
+      (S.impBusy ? '<p class="hint">Tuodaan…</p>'
+        : '<div class="actions"><button class="btn primary" type="button" data-act="import-yes">Tuo</button><button class="btn quiet" type="button" data-act="import-no">Peruuta</button></div>') + '</div>';
+  }
+  function startImport(file) {
+    var msg = $('#backup-msg');
+    S.imp = null;
+    if (!ready()) { toast('Odota, että reseptit latautuvat.'); return; }
+    if (file.size > 5 * 1024 * 1024) { msg.innerHTML = '<p class="err">Tiedosto on liian suuri tuotavaksi.</p>'; return; }
+    var fr = new FileReader();
+    fr.onerror = function () { msg.innerHTML = '<p class="err">Tiedoston lukeminen epäonnistui.</p>'; };
+    fr.onload = function () {
+      var res = parseBackup(String(fr.result), S.ings, S.recipes.map(function (x) { return x.id; }));
+      if (res.error) { msg.innerHTML = '<p class="err">' + esc(res.error) + '</p>'; return; }
+      if (!res.ings.length && !res.recs.length) { msg.innerHTML = '<p class="err">Tiedostossa ei ole tuotavia reseptejä tai aineksia.</p>'; return; }
+      S.imp = res;
+      renderImport();
+    };
+    fr.readAsText(file);
+  }
+  function runImport() {
+    var m = S.imp;
+    if (!m || S.impBusy) return;
+    S.impBusy = true;
+    renderImport();
+    var jobs = m.ings.map(function (g) { return ['ingredients', g]; }).concat(m.recs.map(function (r) { return ['recipes', r]; }));
+    jobs.reduce(function (p, j) { return p.then(function () { return persistDoc(j[0], j[1]); }); }, Promise.resolve())
+      .then(function () {
+        S.impBusy = false; S.imp = null;
+        $('#backup-msg').innerHTML = '<p class="hint">Tuotu ' + plural(m.recs.length, 'resepti', 'reseptiä') + ' ja ' + plural(m.ings.length, 'aines', 'ainesta') + '.</p>';
+        toast('Varmuuskopio tuotu');
+        onData();
+      }).catch(function () {
+        S.impBusy = false;
+        renderImport('Tuonti keskeytyi. Jo tuodut tiedot ovat tallessa, ja voit yrittää uudelleen.');
+        onData();
+      });
+  }
+
   /* ---------- routing ---------- */
   function route() {
     var h = location.hash.replace(/^#/, '');
@@ -978,6 +1133,7 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
     if (S.view === 'list') S.scroll = window.scrollY;
     var rt = route();
     S.view = rt.v; S.rid = rt.id; S.confirm = false; S.confirmEx = false; S.editBuilt = false; S.serv = null;
+    if (!S.impBusy) { S.imp = null; var bm = $('#backup-msg'); if (bm) bm.innerHTML = ''; }
     V.list.hidden = rt.v !== 'list';
     V.detail.hidden = rt.v !== 'detail';
     V.edit.hidden = rt.v !== 'edit';
@@ -1030,6 +1186,10 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
       case 'clear': S.q = ''; S.flavors = []; S.sel = []; $('#q').value = ''; renderList(); break;
       case 'new': location.hash = 'new'; break;
       case 'goings': location.hash = 'ainekset'; break;
+      case 'export': doExport(); break;
+      case 'import-pick': $('#imp-file').click(); break;
+      case 'import-yes': runImport(); break;
+      case 'import-no': S.imp = null; renderImport(); break;
       case 'back': location.hash = ''; break;
       case 'edit': location.hash = 'edit-' + S.rid; break;
       case 'cancel': location.hash = S.rid ? 'recipe-' + S.rid : ''; break;
@@ -1166,6 +1326,12 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
     }
   });
   $('#q').addEventListener('input', function (e) { S.q = e.target.value; renderList(); });
+  $('#imp-file').addEventListener('change', function (e) {
+    var f = e.target.files && e.target.files[0];
+    if (f) startImport(f);
+    e.target.value = '';
+  });
+  initBackup();
   $('#ing-form').addEventListener('submit', function (e) {
     e.preventDefault();
     var inp = $('#ing'), txt = inp.value.trim();
@@ -1183,5 +1349,3 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
   init();
 })();
 </script>
-
-</body></html>
