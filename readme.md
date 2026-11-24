@@ -9,4 +9,7 @@ HTML sovellus löytyy makukirja kansiosta. Samasta kansiosta löytyy json tiedos
 
 
 Lue [Projektin määrittely](docs/01-projektikuvaus.md).
+Lue [AI:N käyttö](docs/02-ai-tyoskentely.md).
+Lue [Testaus](docs/03-testaus-ja-validointi.md).
+Lue [Palautus](docs/04-palautus.md).
 
