@@ -4,7 +4,7 @@ Roi Nasib
 
 Resepti kirja omaan ja kenties läheis  piirin käyttöön.
 
-HTML sovellus löytyy makukirja kansiosta. Samasta kansiosta löytyy json tiedosta joka sisältää muutamia reseptejä. Nämä saa lisättyä ohjelmaan valitsemalla "tuo varmuuskopio" ja valitsemalla kyseinen tiedosto.
+HTML sovellus löytyy makukirja kansiosta. Samasta kansiosta löytyy json tiedosto joka sisältää muutamia reseptejä. Nämä saa lisättyä ohjelmaan valitsemalla "tuo varmuuskopio" ja valitsemalla kyseinen tiedosto.
 
 
 
