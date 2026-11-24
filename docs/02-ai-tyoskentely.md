@@ -28,3 +28,11 @@ Claude ymmärsi melko hyvin mitä tarkoitin, mutta korjasin muutaman ehdotuksen 
 
 Tämän jälkeen julkaisin ensimmäisen version git-hubiin.
 
+
+
+Tällä hetkellä reseptit tallentuvat vain clauden, sekä selaimen muistiin. Tämä ei ole toivottua, sillä näissä on suuri riski, sille että reseptit poistuvat. Kysyin claudelta jos olisi mahdollista saada tallennettua reseptit omalle laitteelle. Se tarjosi muutaman vaihtoehdon joista varteenottavin oli "Backup to a file: I'd add an export button that saves all your recipes and ingredients as a file on your device, and an import button to load them back. You'd keep the synced version and still have a copy you control. The browser may ask you to confirm each save, and the file only updates when you export again". Claude lisäsi toiminnon.
+
+
+
+Toiminto ei toiminut vielä toivotulla tavalla. Varmuuskopion vienti toimi ainoastaan clauden muistin kautta. Tämä muutettiin siten, että se toimii myös standalone versiossa.
+
