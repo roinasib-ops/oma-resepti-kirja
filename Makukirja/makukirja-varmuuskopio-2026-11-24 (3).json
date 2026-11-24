@@ -1,0 +1,542 @@
+{
+  "app": "makukirja",
+  "version": 1,
+  "exported": "2026-11-24T13:37:09.667Z",
+  "ingredients": [
+    {
+      "id": "imwuoc6b6k8yt",
+      "name": "0",
+      "unit": "g",
+      "staple": false
+    },
+    {
+      "id": "imwuiqsx3te39",
+      "name": "basilika",
+      "unit": "kpl",
+      "staple": false
+    },
+    {
+      "id": "imwunbegtw9ip",
+      "name": "chili",
+      "unit": "kpl",
+      "staple": false
+    },
+    {
+      "id": "imwunky0kgcq4",
+      "name": "demiglaze",
+      "unit": "dl",
+      "staple": false
+    },
+    {
+      "id": "imwunjxoz2hy1",
+      "name": "dijonsinappi",
+      "unit": "dl",
+      "staple": false
+    },
+    {
+      "id": "imwuoi75zllt0",
+      "name": "fdf",
+      "unit": "g",
+      "staple": false
+    },
+    {
+      "id": "imwuo0tscrz2u",
+      "name": "herkkusieni",
+      "unit": "kpl",
+      "staple": false
+    },
+    {
+      "id": "imwuo5rppzk4g",
+      "name": "herneen verso",
+      "unit": "kpl",
+      "staple": false
+    },
+    {
+      "id": "imwungub74p55",
+      "name": "jauheliha(sika-nauta)",
+      "unit": "g",
+      "staple": false
+    },
+    {
+      "id": "imwun9gek4jrz",
+      "name": "kalakastike",
+      "unit": "dl",
+      "staple": false
+    },
+    {
+      "id": "imwuqatuqqbbo",
+      "name": "kana(paistileike)",
+      "unit": "g",
+      "staple": false
+    },
+    {
+      "id": "imwuo2z1an88e",
+      "name": "kanaliemi",
+      "unit": "dl",
+      "staple": false
+    },
+    {
+      "id": "imwukdsptn4cl",
+      "name": "kanamuna",
+      "unit": "kpl",
+      "staple": false
+    },
+    {
+      "id": "imwunlfjq3ynp",
+      "name": "kerma",
+      "unit": "dl",
+      "staple": false
+    },
+    {
+      "id": "imwunjk2fb5bk",
+      "name": "kevytmaito",
+      "unit": "dl",
+      "staple": false
+    },
+    {
+      "id": "imwunaaq1fc0i",
+      "name": "lime(mehu)",
+      "unit": "kpl",
+      "staple": false
+    },
+    {
+      "id": "imwunijymctzv",
+      "name": "maustepippuri",
+      "unit": "dl",
+      "staple": false
+    },
+    {
+      "id": "imwukfhz72o53",
+      "name": "mustapippuri",
+      "unit": "dl",
+      "staple": false
+    },
+    {
+      "id": "imwuipvb4qkmn",
+      "name": "oliiviöljy",
+      "unit": "dl",
+      "staple": false
+    },
+    {
+      "id": "imwunj07pfn6v",
+      "name": "pankojauho",
+      "unit": "dl",
+      "staple": false
+    },
+    {
+      "id": "imwukerwwnkv6",
+      "name": "parmesan",
+      "unit": "g",
+      "staple": false
+    },
+    {
+      "id": "imwuiq8iih8db",
+      "name": "pasta",
+      "unit": "g",
+      "staple": false
+    },
+    {
+      "id": "imwunqk8ny4h0",
+      "name": "pecorino",
+      "unit": "g",
+      "staple": false
+    },
+    {
+      "id": "imwukecug6nua",
+      "name": "pekoni",
+      "unit": "g",
+      "staple": false
+    },
+    {
+      "id": "imwunr5xkydo6",
+      "name": "persilja",
+      "unit": "kpl",
+      "staple": false
+    },
+    {
+      "id": "imwuio9f4bm6f",
+      "name": "purkki tomaatti",
+      "unit": "kpl",
+      "staple": false
+    },
+    {
+      "id": "imwunzg2x56yg",
+      "name": "risotto riisi",
+      "unit": "g",
+      "staple": false
+    },
+    {
+      "id": "imwunc6kku2ss",
+      "name": "salottisipuli",
+      "unit": "kpl",
+      "staple": false
+    },
+    {
+      "id": "imwuni5wud8ih",
+      "name": "sipuli",
+      "unit": "kpl",
+      "staple": false
+    },
+    {
+      "id": "imwuo4eb0r0t1",
+      "name": "sitruuna(kuori)",
+      "unit": "kpl",
+      "staple": false
+    },
+    {
+      "id": "imwuo44jhyopa",
+      "name": "sitruuna(mehu)",
+      "unit": "kpl",
+      "staple": false
+    },
+    {
+      "id": "imwunaszl0t8i",
+      "name": "sokeri",
+      "unit": "dl",
+      "staple": false
+    },
+    {
+      "id": "imwuip211ob7k",
+      "name": "valkosipulin kynsi",
+      "unit": "kpl",
+      "staple": false
+    },
+    {
+      "id": "imwuo2j8q6a8s",
+      "name": "valkoviini",
+      "unit": "dl",
+      "staple": false
+    },
+    {
+      "id": "imwuo5026xg34",
+      "name": "voi",
+      "unit": "g",
+      "staple": false
+    }
+  ],
+  "recipes": [
+    {
+      "id": "rmwukg8a03liw",
+      "title": "Carbonara",
+      "time": 30,
+      "servings": 3,
+      "flavors": {
+        "rich": 1,
+        "smoky": 1,
+        "salty": 1
+      },
+      "ingredients": [
+        {
+          "id": "imwuip211ob7k",
+          "amount": 3,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwuiq8iih8db",
+          "amount": 500,
+          "unit": "g"
+        },
+        {
+          "id": "imwukdsptn4cl",
+          "amount": 3,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwukecug6nua",
+          "amount": 300,
+          "unit": "g"
+        },
+        {
+          "id": "imwukerwwnkv6",
+          "amount": 100,
+          "unit": "g"
+        },
+        {
+          "id": "imwukfhz72o53",
+          "amount": 0.15,
+          "unit": "dl"
+        }
+      ],
+      "steps": [
+        "kyl sä tiiät"
+      ],
+      "notes": "en mitään",
+      "example": false,
+      "updated": 1795527396945
+    },
+    {
+      "id": "rmwunodow4lol",
+      "title": "Italialaiset lihapullat",
+      "time": 45,
+      "servings": 5,
+      "flavors": {
+        "spicy": 1,
+        "rich": 3,
+        "herbal": 1,
+        "salty": 1
+      },
+      "ingredients": [
+        {
+          "id": "imwuio9f4bm6f",
+          "amount": 2,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwuni5wud8ih",
+          "amount": 1,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwunj07pfn6v",
+          "amount": 1,
+          "unit": "dl"
+        },
+        {
+          "id": "imwungub74p55",
+          "amount": 700,
+          "unit": "g"
+        },
+        {
+          "id": "imwunqk8ny4h0",
+          "amount": 100,
+          "unit": "g"
+        },
+        {
+          "id": "imwuiqsx3te39",
+          "amount": 1,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwunr5xkydo6",
+          "amount": 1,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwuip211ob7k",
+          "amount": 3,
+          "unit": "kpl"
+        }
+      ],
+      "steps": [],
+      "notes": "",
+      "example": false,
+      "updated": 1795522588050
+    },
+    {
+      "id": "rmwuo0zjifwq9",
+      "title": "kana-sieni-risotto",
+      "time": 60,
+      "servings": 5,
+      "flavors": {
+        "umami": 2,
+        "salty": 1,
+        "rich": 2,
+        "herbal": 1
+      },
+      "ingredients": [
+        {
+          "id": "imwuipvb4qkmn",
+          "amount": 0.5,
+          "unit": "dl"
+        },
+        {
+          "id": "imwunzg2x56yg",
+          "amount": 500,
+          "unit": "g"
+        },
+        {
+          "id": "imwuni5wud8ih",
+          "amount": 1,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwuo0tscrz2u",
+          "amount": 20,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwuo2j8q6a8s",
+          "amount": 2,
+          "unit": "dl"
+        },
+        {
+          "id": "imwuo2z1an88e",
+          "amount": 20,
+          "unit": "dl"
+        },
+        {
+          "id": "imwukerwwnkv6",
+          "amount": 100,
+          "unit": "g"
+        },
+        {
+          "id": "imwuo44jhyopa",
+          "amount": 1,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwuo4eb0r0t1",
+          "amount": 1,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwuo5026xg34",
+          "amount": 50,
+          "unit": "g"
+        },
+        {
+          "id": "imwuo5rppzk4g",
+          "amount": 0.2,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwuqatuqqbbo",
+          "amount": 600,
+          "unit": "g"
+        }
+      ],
+      "steps": [],
+      "notes": "",
+      "example": false,
+      "updated": 1795526812784
+    },
+    {
+      "id": "rmwuncmbdp17r",
+      "title": "Nam jim gai",
+      "time": 10,
+      "servings": 4,
+      "flavors": {
+        "sweet": 1,
+        "sour": 1,
+        "salty": 1
+      },
+      "ingredients": [
+        {
+          "id": "imwun9gek4jrz",
+          "amount": 0.3,
+          "unit": "dl"
+        },
+        {
+          "id": "imwunaaq1fc0i",
+          "amount": 2,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwunaszl0t8i",
+          "amount": 0.15,
+          "unit": "dl"
+        },
+        {
+          "id": "imwunbegtw9ip",
+          "amount": 2,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwunc6kku2ss",
+          "amount": 0.5,
+          "unit": "kpl"
+        }
+      ],
+      "steps": [],
+      "notes": "",
+      "example": false,
+      "updated": 1795521850105
+    },
+    {
+      "id": "rmwunh6dn6c8j",
+      "title": "Ruotsalaiset lihapullat",
+      "time": 45,
+      "servings": 5,
+      "flavors": {
+        "rich": 3,
+        "salty": 1
+      },
+      "ingredients": [
+        {
+          "id": "imwungub74p55",
+          "amount": 700,
+          "unit": "g"
+        },
+        {
+          "id": "imwuni5wud8ih",
+          "amount": 1,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwunijymctzv",
+          "amount": 0.1,
+          "unit": "dl"
+        },
+        {
+          "id": "imwunj07pfn6v",
+          "amount": 1,
+          "unit": "dl"
+        },
+        {
+          "id": "imwunjk2fb5bk",
+          "amount": 2,
+          "unit": "dl"
+        },
+        {
+          "id": "imwunjxoz2hy1",
+          "amount": 0.15,
+          "unit": "dl"
+        },
+        {
+          "id": "imwunky0kgcq4",
+          "amount": 5,
+          "unit": "dl"
+        },
+        {
+          "id": "imwunlfjq3ynp",
+          "amount": 2,
+          "unit": "dl"
+        }
+      ],
+      "steps": [],
+      "notes": "",
+      "example": false,
+      "updated": 1795522285542
+    },
+    {
+      "id": "rmwuiqxj8v7lm",
+      "title": "Tomaatti-pasta",
+      "time": 15,
+      "servings": 3,
+      "flavors": {
+        "herbal": 1
+      },
+      "ingredients": [
+        {
+          "id": "imwuio9f4bm6f",
+          "amount": 1,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwuip211ob7k",
+          "amount": 2,
+          "unit": "kpl"
+        },
+        {
+          "id": "imwuipvb4qkmn",
+          "amount": 0.3,
+          "unit": "dl"
+        },
+        {
+          "id": "imwuiq8iih8db",
+          "amount": 500,
+          "unit": "g"
+        },
+        {
+          "id": "imwuiqsx3te39",
+          "amount": 0.5,
+          "unit": "kpl"
+        }
+      ],
+      "steps": [],
+      "notes": "",
+      "example": false,
+      "updated": 1795517000870
+    }
+  ]
+}

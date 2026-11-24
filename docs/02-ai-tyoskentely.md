@@ -1,4 +1,8 @@
-Käytetyt AI:t: Claude
+
+
+|**Työkalu**|**Malli tai versio, jos tiedossa**|**Käyttötarkoitus**|**Miten tuotoksia<br />tarkistettiin?**|
+|-|-|-|-|
+|Claude|sonnet 5.5 medium|Sovelluksen luonti ja muokkaus. |Sovellusta testaamalla|
 
 
 
