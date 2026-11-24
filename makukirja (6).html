@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Makukirja</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Inter:wght@400;500;600&display=swap">
@@ -349,8 +348,8 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
     </header>
 
     <label class="field search">
-      <span class="sr">Hae reseptejä</span>
-      <input id="q" type="search" placeholder="Hae nimellä tai aineella" autocomplete="off">
+      <span class="sr">Hae reseptin nimellä</span>
+      <input id="q" type="search" placeholder="Hae reseptin nimellä" autocomplete="off">
     </label>
 
     <details class="find" id="find" open>
@@ -604,8 +603,7 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
       var f = r.flavors || {}, rows = rowsOf(r);
       var ids = rows.map(function (x) { return x.id; });
       if (words.length) {
-        var nm = rows.map(function (x) { return S.map[x.id] ? S.map[x.id].name : ''; }).join(' ');
-        var hay = norm(r.title + ' ' + nm + ' ' + (r.notes || ''));
+        var hay = norm(r.title);
         if (!words.every(function (w) { return hay.indexOf(w) > -1; })) return;
       }
       for (var i = 0; i < S.flavors.length; i++) if (!(f[S.flavors[i]] > 0)) return;
@@ -803,7 +801,7 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
       if (g) {
         head = '<div class="ihead"><span class="cap name">' + esc(g.name) + '</span><button type="button" class="btn quiet sm" data-act="row-change" data-val="' + row.k + '">Vaihda</button></div>';
       } else {
-        head = '<div class="pick"><input class="pick-in" id="pi-' + row.k + '" data-ctx="row:' + row.k + '" value="' + esc(row.text) + '" placeholder="Hae ainesta, esim. tomaatti" autocomplete="off" autocapitalize="none" aria-label="Aines"><div class="sugg">' + (conf ? '' : suggHTML('row:' + row.k, row.text, true, usedIds(row.k))) + '</div></div>';
+        head = '<div class="pick"><input class="pick-in" id="pi-' + row.k + '" data-ctx="row:' + row.k + '" value="' + esc(row.text) + '" placeholder="Hae ainesta" autocomplete="off" autocapitalize="none" aria-label="Aines"><div class="sugg">' + (conf ? '' : suggHTML('row:' + row.k, row.text, true, usedIds(row.k))) + '</div></div>';
       }
       return '<div class="irow">' + head + conf +
         '<div class="line2"><input data-f="amount" data-k="' + row.k + '" id="am-' + row.k + '" inputmode="decimal" value="' + esc(row.amount) + '" placeholder="Määrä, esim. 3,5" aria-label="Määrä">' +
@@ -829,13 +827,13 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
     V.edit.innerHTML =
       '<header class="top"><button class="btn quiet" data-act="cancel" type="button">Peruuta</button><h2>' + (r ? 'Muokkaa reseptiä' : 'Uusi resepti') + '</h2><button class="btn primary" data-act="save" type="button">Tallenna</button></header>' +
       '<form class="form" id="e-form" novalidate>' +
-      '<label class="field"><span class="lbl">Nimi</span><input id="e-title" value="' + esc(d.title) + '" placeholder="Savuinen tomaatti-kikhernepata" autocomplete="off"></label>' +
+      '<label class="field"><span class="lbl">Nimi</span><input id="e-title" value="' + esc(d.title) + '" placeholder="Anna reseptin nimi" autocomplete="off"></label>' +
       '<div class="row2"><label class="field"><span class="lbl">Aika (min)</span><input id="e-time" type="number" inputmode="numeric" min="0" value="' + (d.time || '') + '"></label>' +
       '<label class="field"><span class="lbl">Annokset</span><input id="e-serv" type="number" inputmode="numeric" min="1" value="' + (d.servings || '') + '"></label></div>' +
       '<fieldset class="group"><legend class="lbl">Makuprofiili</legend><p class="hint">Napauta makua asettaaksesi sen voimakkuuden: häivähdys, keskivahva, voimakas. Napauta uudestaan nostaaksesi ja vielä kerran poistaaksesi.</p><div class="chips" id="e-flavors">' +
       FLAVORS.map(function (f) { return '<button type="button" data-act="efl" data-val="' + f.id + '"></button>'; }).join('') + '</div></fieldset>' +
       '<div class="group"><div class="lbl">Ainekset</div><p class="hint">Valitse aines listasta. Jos ainesta ei ole, voit lisätä sen uutena. Annosmäärä ja määrät skaalautuvat reseptin katselussa.</p><div class="rows" id="e-rows"></div><div><button class="btn" type="button" data-act="row-add">Lisää aines</button></div></div>' +
-      '<label class="field"><span class="lbl">Valmistus</span><textarea id="e-steps" rows="7" placeholder="Pehmennä sipuli öljyssä.">' + esc((d.steps || []).join('\n')) + '</textarea><span class="hint">Yksi vaihe per rivi.</span></label>' +
+      '<label class="field"><span class="lbl">Valmistus</span><textarea id="e-steps" rows="7" placeholder="1.vaihe">' + esc((d.steps || []).join('\n')) + '</textarea><span class="hint">Yksi vaihe per rivi.</span></label>' +
       '<label class="field"><span class="lbl">Muistiinpanot</span><textarea id="e-notes" rows="3" placeholder="Mitä muuttaisit ensi kerralla">' + esc(d.notes || '') + '</textarea></label>' +
       '<p class="err" id="e-err" role="alert"></p>' +
       '<div class="actions"><button class="btn primary" type="button" data-act="save">Tallenna resepti</button><button class="btn quiet" type="button" data-act="cancel">Peruuta</button></div></form>';
@@ -1369,5 +1367,3 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
   init();
 })();
 </script>
-
-</body></html>

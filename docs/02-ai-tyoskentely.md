@@ -36,3 +36,7 @@ Tällä hetkellä reseptit tallentuvat vain clauden, sekä selaimen muistiin. T�
 
 Toiminto ei toiminut vielä toivotulla tavalla. Varmuuskopion vienti toimi ainoastaan clauden muistin kautta. Tämä muutettiin siten, että se toimii myös standalone versiossa.
 
+
+
+Hakutoiminnot toimivat hieman hassusti. Ylhäällä oleva hakukenttä toimi sekä aineksilla, että reseptin nimellä. Siinä vaiheessa kun reseptejä on paljon tästä tulis melko käyttökelvoton. Muutettu siten, että yläkentästä haetaan vain reseptin nimellä ja alakentästä aineksien avulla.
+
